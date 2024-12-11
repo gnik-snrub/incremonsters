@@ -1,6 +1,7 @@
 mod models;
-
 use models::Monster;
+mod monsters;
+use monsters::*;
 
 use rand::Rng;
 
@@ -11,27 +12,9 @@ fn process_battle() {
 
 #[tauri::command]
 fn create_monster() -> Monster {
+    let monster_options: [fn() -> Monster; 3] = [skeleton::new, ogre::new, zombie::new];
     let mut rng = rand::thread_rng();
-    let hp: i32 = rng.gen_range(0..100);
-    let atk: i32 = rng.gen_range(0..100);
-    let def: i32 = rng.gen_range(0..100);
-    let spd: i32 = rng.gen_range(0..100);
-
-    println!("HP: {}", hp);
-    println!("ATK: {}", atk);
-    println!("DEF: {}", def);
-    println!("SPD: {}", spd);
-
-    Monster {
-        name: "Monster".to_string(),
-        hp,
-        current_hp: hp,
-        atk,
-        def,
-        spd,
-        exp: 0,
-        lvl: 1,
-    }
+    monster_options[rng.gen_range(0..monster_options.len())]()
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

@@ -1,7 +1,7 @@
 // src/models.rs
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize)]
 pub struct Monster {
     pub name: String,
     pub hp: i32,
@@ -13,3 +13,17 @@ pub struct Monster {
     pub lvl: i32,
 }
 
+impl Monster {
+    pub fn new(name: &str, hp: i32, atk: i32, def: i32, spd: i32) -> Self {
+        Monster {
+            name: name.to_string(),
+            hp,
+            current_hp: hp,
+            atk,
+            def,
+            spd,
+            exp: 0,
+            lvl: 1,
+        }
+    }
+}
