@@ -43,6 +43,16 @@
         }
       })
   }
+
+  let a = $state(0)
+  let b = $state(0)
+  let out = $state(0)
+
+  async function calc() {
+    console.log('atk: ', a, 'def: ', b)
+    out = await invoke("calculate_damage", { atk: a, def: b })
+    console.log(out, Math.round(a * (a / (a + b))))
+  }
 </script>
 
 <main class="container">
@@ -58,6 +68,12 @@
   <p>LVL: {monster.lvl}</p>
 
   <button onclick={newMonster}>New</button>
+
+  <h3>Calculator</h3>
+  <input bind:value={a} type="number" />
+  <input bind:value={b} type="number" />
+  <button onclick={calc}>Calculate</button>
+  <p>{out}</p>
 </main>
 
 <style>
