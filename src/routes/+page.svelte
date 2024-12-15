@@ -26,6 +26,7 @@
 
   let monster: Monster = $state({
     name: "",
+  import { type Monster, isMonster } from "$lib/types/monster"
     hp: 0,
     current_hp: 0,
     atk: 0,
