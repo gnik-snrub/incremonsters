@@ -1,32 +1,9 @@
 <script lang="ts">
-  import { invoke } from "@tauri-apps/api/core";
-
-  type Monster = {
-    name: String,
-    hp: number,
-    current_hp: number,
-    atk: number,
-    def: number,
-    spd: number,
-    exp: number,
-    lvl: number,
-  }
-
-  function isMonster(obj: any): obj is Monster {
-    return typeof obj === "object" &&
-      typeof obj.name === "string" &&
-      typeof obj.hp === "number" &&
-      typeof obj.current_hp === "number" &&
-      typeof obj.atk === "number" &&
-      typeof obj.def === "number" &&
-      typeof obj.spd === "number" &&
-      typeof obj.exp === "number" &&
-      typeof obj.lvl === "number"
-  }
-
-  let monster: Monster = $state({
-    name: "",
+  import { invoke } from "@tauri-apps/api/core"
   import { type Monster, isMonster } from "$lib/types/monster"
+
+  let enemyMonster: Monster = $state({
+    name: "Monster",
     hp: 0,
     current_hp: 0,
     atk: 0,
@@ -36,48 +13,109 @@
     lvl: 0,
   })
 
-  async function newMonster() {
-    invoke("create_monster")
-      .then(new_monster => {
-        if (isMonster(new_monster)) {
-          monster = new_monster
+  let playerMonster: Monster = $state({
+    name: "Monster",
+    hp: 0,
+    current_hp: 0,
+    atk: 0,
+    def: 0,
+    spd: 0,
+    exp: 0,
+    lvl: 0,
+  })
+
+  onload = () => {
+    invoke("create_monster").then((res) => {
+      if (isMonster(res)) {
+        enemyMonster = res
+      }
+    })
+  }
+  
+  function setPlayerMonster() {
+    invoke("create_monster").then((res) => {
+      if (isMonster(res)) {
+        playerMonster = res
+      }
+    })
+  }
+
+  $effect(() => {
+    if (enemyMonster.current_hp <= 0) {
+      enemyMonster.current_hp = 5
+      invoke("create_monster").then((res) => {
+        if (isMonster(res)) {
+          enemyMonster = res
         }
       })
-  }
+      playerMonster.exp += enemyMonster.lvl
+      if (playerMonster.exp >= playerMonster.lvl * 10) {
+        levelUp()
+      }
+    }
+  })
 
-  let a = $state(0)
-  let b = $state(0)
-  let out = $state(0)
+  $effect(() => {
+    if (playerMonster.current_hp <= 0) {
+      playerMonster.current_hp = playerMonster.hp
+    }
+  })
+
+  function levelUp() {
+    playerMonster.exp -= playerMonster.lvl * 10
+    playerMonster.lvl += 1
+    playerMonster.atk = Math.round(playerMonster.atk * ((playerMonster.atk + playerMonster.lvl) / playerMonster.atk))
+    playerMonster.def = Math.round(playerMonster.def * ((playerMonster.def + playerMonster.lvl) / playerMonster.def))
+    playerMonster.spd = Math.round(playerMonster.spd * ((playerMonster.spd + playerMonster.lvl) / playerMonster.spd))
+  }
 
   async function calc() {
-    console.log('atk: ', a, 'def: ', b)
-    out = await invoke("calculate_damage", { atk: a, def: b })
-    console.log(out, Math.round(a * (a / (a + b))))
+    const playerAttack = Math.round(playerMonster.atk * (1 + (playerMonster.spd / 100)))
+    const enemyAttack = Math.round(enemyMonster.atk * (1 + (enemyMonster.spd / 100)))
+    invoke("calculate_damage", { atk: playerAttack, def: enemyMonster.def })
+      .then((res) => {if (typeof res === "number") enemyMonster.current_hp -= res})
+
+    invoke("calculate_damage", { atk: enemyAttack, def: playerMonster.def })
+      .then((res) => {if (typeof res === "number") playerMonster.current_hp -= res})
   }
+  
 </script>
 
 <main class="container">
   <h1>Incremonsters</h1>
 
-  <h3>Monster</h3>
-  <p>Name: {monster.name}</p>
-  <p>HP: {monster.current_hp}/{monster.hp}</p>
-  <p>ATK: {monster.atk}</p>
-  <p>DEF: {monster.def}</p>
-  <p>SPD: {monster.spd}</p>
-  <p>EXP: {monster.exp}</p>
-  <p>LVL: {monster.lvl}</p>
+  <section id="battleZone">
+    <div class="player">
+      <p>Name: {playerMonster.name}</p>
+      <p>HP: {playerMonster.current_hp}/{playerMonster.hp}</p>
+      <p>ATK: {playerMonster.atk}</p>
+      <p>DEF: {playerMonster.def}</p>
+      <p>SPD: {playerMonster.spd}</p>
+      <p>EXP: {playerMonster.exp}</p>
+      <p>LVL: {playerMonster.lvl}</p>
+      <button onclick={setPlayerMonster}>New Monster</button>
+    </div>
+    <div class="enemy">
+      <p>Name: {enemyMonster.name}</p>
+      <p>HP: {enemyMonster.current_hp}/{enemyMonster.hp}</p>
+      <p>ATK: {enemyMonster.atk}</p>
+      <p>DEF: {enemyMonster.def}</p>
+      <p>SPD: {enemyMonster.spd}</p>
+      <p>EXP: {enemyMonster.exp}</p>
+      <p>LVL: {enemyMonster.lvl}</p>
+    </div>
 
-  <button onclick={newMonster}>New</button>
-
-  <h3>Calculator</h3>
-  <input bind:value={a} type="number" />
-  <input bind:value={b} type="number" />
-  <button onclick={calc}>Calculate</button>
-  <p>{out}</p>
+  <button onclick={calc}>Attack</button>
+  </section>
 </main>
 
 <style>
+
+#battleZone {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
 
 p {
   margin: 0;
