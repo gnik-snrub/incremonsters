@@ -1,8 +1,10 @@
 // src/models.rs
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Serialize, Deserialize)]
 pub struct Monster {
+    pub id: String,
     pub name: String,
     pub hp: i32,
     pub current_hp: i32,
@@ -16,6 +18,7 @@ pub struct Monster {
 impl Monster {
     pub fn new(name: &str, hp: i32, atk: i32, def: i32, spd: i32) -> Self {
         Monster {
+            id: Uuid::new_v4().to_string(),
             name: name.to_string(),
             hp,
             current_hp: hp,
