@@ -2,44 +2,7 @@
   import { invoke } from "@tauri-apps/api/core"
   import { type Monster, isMonster } from "$lib/types/monster"
 
-  let enemyMonster: Monster = $state({
-    name: "Monster",
-    hp: 0,
-    current_hp: 0,
-    atk: 0,
-    def: 0,
-    spd: 0,
-    exp: 0,
-    lvl: 0,
-  })
-
-  let playerMonster: Monster = $state({
-    name: "Monster",
-    hp: 0,
-    current_hp: 0,
-    atk: 0,
-    def: 0,
-    spd: 0,
-    exp: 0,
-    lvl: 0,
-  })
-
-  onload = () => {
-    invoke("create_monster").then((res) => {
-      if (isMonster(res)) {
-        enemyMonster = res
-      }
-    })
-  }
-  
-  function setPlayerMonster() {
-    invoke("create_monster").then((res) => {
-      if (isMonster(res)) {
-        playerMonster = res
-      }
-    })
-  }
-
+  /*
   $effect(() => {
     if (enemyMonster.current_hp <= 0) {
       enemyMonster.current_hp = 5
@@ -78,7 +41,22 @@
     invoke("calculate_damage", { atk: enemyAttack, def: playerMonster.def })
       .then((res) => {if (typeof res === "number") playerMonster.current_hp -= res})
   }
-  
+  */
+
+  import { mySquad, enemySquad } from "../stores/monsters.svelte";
+
+  onload = () => {
+    let tickspeed = 1000
+
+    setInterval(() => {
+      calc()
+    }, tickspeed)
+  }
+  */
+
+  function newMonsters(lvl: number, amount: number) {
+    enemySquad.newMonsters(lvl, amount)
+  }
 </script>
 
 <main class="container">
@@ -86,26 +64,22 @@
 
   <section id="battleZone">
     <div class="player">
-      <p>Name: {playerMonster.name}</p>
-      <p>HP: {playerMonster.current_hp}/{playerMonster.hp}</p>
-      <p>ATK: {playerMonster.atk}</p>
-      <p>DEF: {playerMonster.def}</p>
-      <p>SPD: {playerMonster.spd}</p>
-      <p>EXP: {playerMonster.exp}</p>
-      <p>LVL: {playerMonster.lvl}</p>
-      <button onclick={setPlayerMonster}>New Monster</button>
+      Quantity: {enemySquad.getMonsters().length}
+      Stats: {enemySquad.totalStats()}
     </div>
     <div class="enemy">
-      <p>Name: {enemyMonster.name}</p>
-      <p>HP: {enemyMonster.current_hp}/{enemyMonster.hp}</p>
-      <p>ATK: {enemyMonster.atk}</p>
-      <p>DEF: {enemyMonster.def}</p>
-      <p>SPD: {enemyMonster.spd}</p>
-      <p>EXP: {enemyMonster.exp}</p>
-      <p>LVL: {enemyMonster.lvl}</p>
+      {#each enemySquad.getMonsters() as monster }
+        <div class="monster">
+          <h3>{monster.name}</h3>
+          <p>{monster.lvl}</p>
+          <p>{monster.hp}</p>
+          <p>{monster.atk}</p>
+          <p>{monster.def}</p>
+          <p>{monster.spd}</p>
+        </div>
+      {/each}
+      <button onclick={() => newMonsters(200, 4)}>Populate</button>
     </div>
-
-  <button onclick={calc}>Attack</button>
   </section>
 </main>
 
@@ -116,7 +90,13 @@
   flex-direction: row;
   justify-content: space-evenly;
 }
-
+  .enemy {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    text-align: center;
+    gap: 10px;
+  }
 p {
   margin: 0;
   padding: 0;
