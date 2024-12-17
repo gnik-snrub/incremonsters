@@ -13,14 +13,14 @@ fn process_battle() {
 }
 
 #[tauri::command]
-fn create_monster() -> Monster {
+fn create_monster(lvl: i32) -> Monster {
     let monster_options: [fn() -> Monster; 3] = [skeleton::new, ogre::new, zombie::new];
     let mut rng = rand::thread_rng();
     monster_options[rng.gen_range(0..monster_options.len())]()
 }
 
 #[tauri::command]
-fn calculate_damage(atk: i32, mut def: i32) -> i32 {
+fn calculate_damage(atk: i32, def: i32) -> i32 {
     let output: i32 = damage_calculation(atk, def);
     output
 }
