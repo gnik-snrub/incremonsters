@@ -16,7 +16,7 @@
       for (let i = 0; i < monsters.length; i++) {
         total += (monsters[i].hp / 5) + monsters[i].atk + monsters[i].def + monsters[i].spd
       }
-      return total
+      return Math.ceil(total)
     }
 
     function findMonster(id: string): number {

@@ -8,7 +8,7 @@ pub mod skeleton;
 pub mod ogre;
 pub mod zombie;
 
-struct GrowthRates {
+pub struct GrowthRates {
     pub hp: f32,
     pub atk: f32,
     pub def: f32,

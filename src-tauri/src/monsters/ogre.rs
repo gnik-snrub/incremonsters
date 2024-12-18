@@ -6,8 +6,8 @@ pub fn new() -> Monster {
 }
 
 pub const OGRE_GROWTH_RATE: GrowthRates = GrowthRates {
-    hp: 1.5,
-    atk: 1.2,
-    def: 1.3,
-    spd: 1.1
+    hp: 1.05,
+    atk: 1.02,
+    def: 1.03,
+    spd: 1.01
 };
