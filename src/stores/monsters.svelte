@@ -50,15 +50,12 @@
         let promise = invoke("create_monster", { lvl }).then((res) => {
           if (isMonster(res)) {
             setMonsters([...getMonsters(), res])
-            console.log(res)
           }
         })
         monsterPromises.push(promise)
       }
 
-      Promise.all(monsterPromises).then(() => {
-        console.log("monsters: ", getMonsters())
-      })
+      Promise.all(monsterPromises)
     }
 
     return { getMonsters, setMonsters, totalStats, findMonster, newMonsters }
