@@ -4,7 +4,7 @@
 
   import { mySquad, enemySquad } from "../stores/monsters.svelte";
 
-  let isBattling: boolean = false
+  let isBattling: boolean = $state(false)
   let battleInterval: number = 1000
   let battleIntervalId: ReturnType<typeof setInterval>
   function battleToggle() {
