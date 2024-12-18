@@ -2,101 +2,110 @@
   import { invoke } from "@tauri-apps/api/core"
   import { type Monster, isMonster } from "$lib/types/monster"
 
-  /*
-  $effect(() => {
-    if (enemyMonster.current_hp <= 0) {
-      enemyMonster.current_hp = 5
-      invoke("create_monster").then((res) => {
-        if (isMonster(res)) {
-          enemyMonster = res
-        }
-      })
-      playerMonster.exp += enemyMonster.lvl
-      if (playerMonster.exp >= playerMonster.lvl * 10) {
-        levelUp()
-      }
-    }
-  })
-
-  $effect(() => {
-    if (playerMonster.current_hp <= 0) {
-      playerMonster.current_hp = playerMonster.hp
-    }
-  })
-
-  function levelUp() {
-    playerMonster.exp -= playerMonster.lvl * 10
-    playerMonster.lvl += 1
-    playerMonster.atk = Math.round(playerMonster.atk * ((playerMonster.atk + playerMonster.lvl) / playerMonster.atk))
-    playerMonster.def = Math.round(playerMonster.def * ((playerMonster.def + playerMonster.lvl) / playerMonster.def))
-    playerMonster.spd = Math.round(playerMonster.spd * ((playerMonster.spd + playerMonster.lvl) / playerMonster.spd))
-  }
-
-  async function calc() {
-    const playerAttack = Math.round(playerMonster.atk * (1 + (playerMonster.spd / 100)))
-    const enemyAttack = Math.round(enemyMonster.atk * (1 + (enemyMonster.spd / 100)))
-    invoke("calculate_damage", { atk: playerAttack, def: enemyMonster.def })
-      .then((res) => {if (typeof res === "number") enemyMonster.current_hp -= res})
-
-    invoke("calculate_damage", { atk: enemyAttack, def: playerMonster.def })
-      .then((res) => {if (typeof res === "number") playerMonster.current_hp -= res})
-  }
-  */
-
   import { mySquad, enemySquad } from "../stores/monsters.svelte";
 
-  onload = () => {
-    let tickspeed = 1000
-
-    setInterval(() => {
-      calc()
-    }, tickspeed)
+  let isBattling: boolean = false
+  let battleInterval: number = 1000
+  let battleIntervalId: ReturnType<typeof setInterval>
+  function battleToggle() {
+    if (isBattling) {
+      clearInterval(battleIntervalId)
+      isBattling = false
+    } else {
+      battleIntervalId = setInterval(() => {
+        invokeBattle()
+      }, battleInterval)
+      isBattling = true
+    }
   }
-  */
 
-  function newMonsters(lvl: number, amount: number) {
-    enemySquad.newMonsters(lvl, amount)
+  $effect(() => {
+    // Just for testing...
+    mySquad.setMonsters([])
+    for (let i = 0; i < 4; i++) {
+      invoke("create_monster", { lvl: 1 }).then((res) => {
+        if (isMonster(res)) {
+          mySquad.setMonsters([...mySquad.getMonsters(), res])
+        }
+      })
+    }
+  })
+
+  $effect(() => {
+    enemySquad.newMonsters(1, 4)
+  })
+
+  function invokeBattle() {
+    invoke("battle", { player: mySquad.getMonsters(), enemy: enemySquad.getMonsters() })
   }
 </script>
 
 <main class="container">
   <h1>Incremonsters</h1>
 
+  <button onclick={battleToggle}>Fight!</button>
+  {isBattling ? "Battling" : "Not fighting"}
   <section id="battleZone">
-    <div class="player">
-      Quantity: {enemySquad.getMonsters().length}
-      Stats: {enemySquad.totalStats()}
+    <h3>Power Level: {mySquad.totalStats()}</h3>
+    <div class="monsterList">
+      {#each mySquad.getMonsters() as monster }
+        <div class="monster">
+          <h3>{monster.name}</h3>
+          <p>Level: {monster.lvl}</p>
+          <p>HP: {monster.current_hp}/{monster.hp}</p>
+          <p>ATK: {monster.atk}</p>
+          <p>DEF: {monster.def}</p>
+          <p>SPD: {monster.spd}</p>
+        </div>
+      {/each}
     </div>
-    <div class="enemy">
+    <h3>Power Level: {enemySquad.totalStats()}</h3>
+    <div class="monsterList">
       {#each enemySquad.getMonsters() as monster }
         <div class="monster">
           <h3>{monster.name}</h3>
-          <p>{monster.lvl}</p>
-          <p>{monster.hp}</p>
-          <p>{monster.atk}</p>
-          <p>{monster.def}</p>
-          <p>{monster.spd}</p>
+          <p>Level: {monster.lvl}</p>
+          <p>HP: {monster.current_hp}/{monster.hp}</p>
+          <p>ATK: {monster.atk}</p>
+          <p>DEF: {monster.def}</p>
+          <p>SPD: {monster.spd}</p>
         </div>
       {/each}
-      <button onclick={() => newMonsters(200, 4)}>Populate</button>
     </div>
   </section>
 </main>
 
 <style>
-
+:root(html) {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+}
 #battleZone {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: space-evenly;
+  align-items: center;
+  height: 100%;
 }
-  .enemy {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    text-align: center;
-    gap: 10px;
-  }
+.monsterList {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  text-align: center;
+  gap: 30px;
+  border-top: 1px solid black;
+  width: 50%;
+}
+
 p {
   margin: 0;
   padding: 0;
