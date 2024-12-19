@@ -1,3 +1,4 @@
+use crate::models::Monster;
 use rand::{thread_rng, random};
 use rand::seq::SliceRandom;
 
@@ -21,9 +22,33 @@ fn attack(attacker: &Monster, target: &mut Monster) {
     target.hp -= damage;
 }
 
+fn get_speed_order(player: &Vec<Monster>, enemy: &Vec<Monster>) -> Vec<(i32, String, usize)> {
+    let mut combined: Vec<(i32, String, usize)> = Vec::new();
+    for (i, monster) in player.iter().enumerate() {
+        combined.push((monster.spd, "player".to_string(), i));
+    }
+    for (i, monster) in enemy.iter().enumerate() {
+        combined.push((monster.spd, "enemy".to_string(), i));
+    }
+    combined.sort_by(|a, b| {
+        let cmp = a.0.cmp(&b.0);
+        if cmp == std::cmp::Ordering::Equal {
+            if random::<bool>() {
+                std::cmp::Ordering::Less
+            } else {
+                std::cmp::Ordering::Greater
+            }
+        } else {
+            cmp
+        }
+    });
+    combined
+}
+
 #[tauri::command]
 pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>) -> [Vec<Monster>; 2] {
     let mut player_targets: Vec<usize> = get_target();
     let mut enemy_targets: Vec<usize> = get_target();
+    let ordered: Vec<(i32, String, usize)> = get_speed_order(&player, &enemy);
     [player, enemy]
 }
