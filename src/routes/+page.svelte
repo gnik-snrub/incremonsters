@@ -37,6 +37,12 @@
 
   function invokeBattle() {
     invoke("battle", { player: mySquad.getMonsters(), enemy: enemySquad.getMonsters() })
+      .then((res) => {
+        const newPlayer = res[0]
+        const newEnemy = res[1]
+        mySquad.setMonsters(newPlayer)
+        enemySquad.setMonsters(newEnemy)
+      })
   }
 </script>
 
