@@ -13,6 +13,14 @@ fn get_target() -> Vec<usize> {
     targets
 }
 
+fn attack(attacker: &Monster, target: &mut Monster) {
+    if attacker.hp <= 0 {
+        return;
+    }
+    let damage: i32 = damage_calculation(attacker.atk, target.def);
+    target.hp -= damage;
+}
+
 #[tauri::command]
 pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>) -> [Vec<Monster>; 2] {
     let mut player_targets: Vec<usize> = get_target();
