@@ -50,5 +50,14 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>) -> [Vec<Monster
     let mut player_targets: Vec<usize> = get_target();
     let mut enemy_targets: Vec<usize> = get_target();
     let ordered: Vec<(i32, String, usize)> = get_speed_order(&player, &enemy);
+    for (_, side, index) in ordered {
+        if side == "player" {
+            let target = &mut enemy[enemy_targets.remove(0)];
+            attack(&player[index], target);
+        } else {
+            let target = &mut player[player_targets.remove(0)];
+            attack(&enemy[index], target);
+        }
+    }
     [player, enemy]
 }
