@@ -1,26 +1,5 @@
 use crate::models::Monster;
-use rand::{thread_rng, random};
-use rand::seq::SliceRandom;
-
-pub fn damage_calculation(atk: i32, def: i32) -> i32 {
-    let calculated: f32 = atk as f32 * ((atk as f32) / if (def) <= 0 { atk } else { atk + def } as f32);
-    calculated.round() as i32
-}
-
-fn get_target() -> Vec<usize> {
-    let mut rng = thread_rng();
-    let mut targets: Vec<usize> = vec![0, 1, 2, 3];
-    targets.shuffle(&mut rng);
-    targets
-}
-
-fn attack(attacker: &Monster, target: &mut Monster) {
-    if attacker.hp <= 0 {
-        return;
-    }
-    let damage: i32 = damage_calculation(attacker.atk, target.def);
-    target.hp -= damage;
-}
+use rand::{Rng, random};
 
 fn get_speed_order(player: &Vec<Monster>, enemy: &Vec<Monster>) -> Vec<(i32, String, usize)> {
     let mut combined: Vec<(i32, String, usize)> = Vec::new();
@@ -45,17 +24,59 @@ fn get_speed_order(player: &Vec<Monster>, enemy: &Vec<Monster>) -> Vec<(i32, Str
     combined
 }
 
+const NO_TARGET: usize = 5;
+
+fn get_target(monsters: &Vec<Monster>) -> usize {
+    let mut rng = rand::thread_rng();
+    let mut target: usize;
+    let mut target_list: Vec<usize> = vec![];
+    loop {
+        if target_list.len() == 4 {
+            target = NO_TARGET;
+            break;
+        }
+        target = rng.gen_range(0..4);
+        if target_list.contains(&target) {
+            continue;
+        }
+        if monsters[target].hp > 0 {
+            break;
+        }
+        target_list.push(target);
+    }
+    target
+}
+
+fn attack(attacker: &Monster, target: &mut Monster) {
+    if attacker.hp <= 0 {
+        return;
+    }
+    let damage: i32 = damage_calculation(attacker.atk, target.def);
+    target.hp = std::cmp::max(target.hp - damage, 0) as i32;
+}
+
+pub fn damage_calculation(atk: i32, def: i32) -> i32 {
+    let calculated: f32 = atk as f32 * ((atk as f32) / if (def) <= 0 { atk } else { atk + def } as f32);
+    calculated.round() as i32
+}
+
 #[tauri::command]
 pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>) -> [Vec<Monster>; 2] {
-    let mut player_targets: Vec<usize> = get_target();
-    let mut enemy_targets: Vec<usize> = get_target();
     let ordered: Vec<(i32, String, usize)> = get_speed_order(&player, &enemy);
     for (_, side, index) in ordered {
         if side == "player" {
-            let target = &mut enemy[enemy_targets.remove(0)];
+            let target_idx = get_target(&enemy);
+            if target_idx == NO_TARGET {
+                continue;
+            }
+            let target = &mut enemy[target_idx];
             attack(&player[index], target);
         } else {
-            let target = &mut player[player_targets.remove(0)];
+            let target_idx = get_target(&player);
+            if target_idx == NO_TARGET {
+                continue;
+            }
+            let target = &mut player[target_idx];
             attack(&enemy[index], target);
         }
     }
