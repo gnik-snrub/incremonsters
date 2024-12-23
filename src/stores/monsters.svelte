@@ -11,6 +11,19 @@
   function monsterGroup(): MonsterGroup {
     let monsters: Monster[] = $state([])
 
+    let allDead: boolean = $derived.by(() => {
+      let total = 0
+      for (const monster of monsters) {
+        total += monster.current_hp
+      }
+      let returnValue = total <= 0 ? true : false
+      return returnValue
+    })
+
+    function getAllDead(): boolean {
+      return allDead
+    }
+
     function totalStats(): number {
       let total = 0
       for (let i = 0; i < monsters.length; i++) {
@@ -50,12 +63,12 @@
       monsters = newMonsters
     }
 
-    return { getMonsters, setMonsters, totalStats, findMonster }
+    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, allDead }
   }
 
   export function enemyMonsters(): EnemyMonsterGroup {
 
-    let { getMonsters, setMonsters, totalStats, findMonster } = monsterGroup()
+    let { getMonsters, setMonsters, totalStats, getMonster, setMonster, getAllDead, allDead } = monsterGroup()
 
     function newMonsters(lvl: number, amount: number) {
       setMonsters([])
@@ -72,6 +85,6 @@
       Promise.all(monsterPromises)
     }
 
-    return { getMonsters, setMonsters, totalStats, findMonster, newMonsters }
+    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, newMonsters, allDead }
   }
 </script>

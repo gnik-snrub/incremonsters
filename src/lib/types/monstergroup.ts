@@ -4,7 +4,8 @@ export type MonsterGroup = {
   getMonsters: () => Monster[],
   setMonsters: (monsters: Monster[]) => void,
   totalStats: () => number,
-  findMonster: (id: string) => number
+  getAllDead: () => boolean,
+  allDead: boolean,
   getMonster: (id: String) => Monster,
   setMonster: (monster: Monster) => void,
 }
