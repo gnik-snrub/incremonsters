@@ -35,6 +35,18 @@
     enemySquad.newMonsters(1, 4)
   })
 
+  $effect(() => {
+    if (isBattling && playerSquad.getAllDead()) {
+      reset()
+    }
+  })
+
+  function reset() {
+    clearInterval(battleIntervalId)
+    isBattling = false
+    playerSquad.heal()
+  }
+
   function invokeBattle() {
     invoke("battle", { player: playerSquad.getMonsters(), enemy: enemySquad.getMonsters() })
       .then((res) => {
@@ -50,6 +62,7 @@
   <h1>Incremonsters</h1>
 
   <button onclick={battleToggle}>Fight!</button>
+  <button onclick={reset}>Reset</button>
   {isBattling ? "Battling" : "Not fighting"}
   <section id="battleZone">
     <h3>Power Level: {playerSquad.totalStats()}</h3>
