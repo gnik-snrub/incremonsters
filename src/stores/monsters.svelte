@@ -19,13 +19,27 @@
       return Math.ceil(total)
     }
 
-    function findMonster(id: string): number {
+    function findMonster(id: String): number {
       for (let i = 0; i < monsters.length; i++) {
         if (monsters[i].id === id) {
           return i
         }
       }
       return -1
+    }
+
+    function getMonster(id: String): Monster {
+      return monsters[findMonster(id)]
+    }
+
+    function setMonster(updateMonster: Monster): void {
+      const monsterIdx = findMonster(updateMonster.id)
+      if (monsterIdx === -1) {
+        return
+      }
+      const newMonsters = [...monsters]
+      newMonsters[monsterIdx] = updateMonster
+      monsters = [...newMonsters]
     }
 
     function getMonsters(): Monster[] {
