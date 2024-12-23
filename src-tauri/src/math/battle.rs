@@ -48,11 +48,11 @@ fn get_target(monsters: &Vec<Monster>) -> usize {
 }
 
 fn attack(attacker: &Monster, target: &mut Monster) {
-    if attacker.hp <= 0 {
+    if attacker.current_hp <= 0 {
         return;
     }
     let damage: i32 = damage_calculation(attacker.atk, target.def);
-    target.hp = std::cmp::max(target.hp - damage, 0) as i32;
+    target.current_hp = std::cmp::max(target.current_hp - damage, 0) as i32;
 }
 
 pub fn damage_calculation(atk: i32, def: i32) -> i32 {
