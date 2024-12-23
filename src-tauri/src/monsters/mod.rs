@@ -29,6 +29,7 @@ pub fn level_up(monster: &mut Monster) {
     monster.atk = (monster.atk as f32 * growth_rates.atk).ceil() as i32;
     monster.def = (monster.def as f32 * growth_rates.def).ceil() as i32;
     monster.spd = (monster.spd as f32 * growth_rates.spd).ceil() as i32;
+    monster.current_hp = monster.hp;
 }
 
 fn find_growth_rate(monster: Monster) -> GrowthRates {
