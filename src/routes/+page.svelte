@@ -36,6 +36,14 @@
   })
 
   $effect(() => {
+    if (isBattling && enemySquad.getAllDead()) {
+      // Resource gain goes here
+      // Dungeon advancement goes here
+      enemySquad.newMonsters(1, 4)
+    }
+  })
+
+  $effect(() => {
     if (isBattling && playerSquad.getAllDead()) {
       reset()
     }
