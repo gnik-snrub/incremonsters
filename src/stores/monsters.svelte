@@ -2,10 +2,10 @@
   import { invoke } from "@tauri-apps/api/core"
 
   import { type Monster, isMonster } from "$lib/types/monster"
-  import { type MonsterGroup, type EnemyMonsterGroup } from "$lib/types/monstergroup"
+  import { type MonsterGroup, type EnemyMonsterGroup, type PlayerMonsterGroup } from "$lib/types/monstergroup"
 
   export const stable: MonsterGroup = monsterGroup()
-  export const mySquad: MonsterGroup = monsterGroup()
+  export const playerSquad: PlayerMonsterGroup = playerMonsters()
   export const enemySquad: EnemyMonsterGroup = enemyMonsters()
 
   function monsterGroup(): MonsterGroup {
@@ -64,6 +64,22 @@
     }
 
     return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, allDead }
+  }
+
+  export function playerMonsters(): PlayerMonsterGroup {
+    let { getMonsters, setMonsters, totalStats, getMonster, setMonster, getAllDead, allDead } = monsterGroup()
+
+    function heal(): void {
+      const healed = getMonsters().map((monster) => {
+        return {
+          ...monster,
+          current_hp: monster.hp
+        }
+      })
+      setMonsters(healed)
+    }
+
+    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, heal, allDead }
   }
 
   export function enemyMonsters(): EnemyMonsterGroup {

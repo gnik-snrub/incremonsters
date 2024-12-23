@@ -11,5 +11,9 @@ export type MonsterGroup = {
 }
 
 export type EnemyMonsterGroup = MonsterGroup & {
-  newMonsters: (lvl: number, amount: number) => void
+  newMonsters: (lvl: number, amount: number) => void,
+}
+
+export type PlayerMonsterGroup = MonsterGroup & {
+  heal: () => void,
 }

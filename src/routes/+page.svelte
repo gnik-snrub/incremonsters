@@ -2,7 +2,7 @@
   import { invoke } from "@tauri-apps/api/core"
   import { type Monster, isMonster } from "$lib/types/monster"
 
-  import { mySquad, enemySquad } from "../stores/monsters.svelte";
+  import { playerSquad, enemySquad } from "../stores/monsters.svelte";
 
   let isBattling: boolean = $state(false)
   let battleInterval: number = 1000
@@ -21,11 +21,11 @@
 
   $effect(() => {
     // Just for testing...
-    mySquad.setMonsters([])
+    playerSquad.setMonsters([])
     for (let i = 0; i < 4; i++) {
       invoke("create_monster", { lvl: 1 }).then((res) => {
         if (isMonster(res)) {
-          mySquad.setMonsters([...mySquad.getMonsters(), res])
+          playerSquad.setMonsters([...playerSquad.getMonsters(), res])
         }
       })
     }
@@ -36,11 +36,11 @@
   })
 
   function invokeBattle() {
-    invoke("battle", { player: mySquad.getMonsters(), enemy: enemySquad.getMonsters() })
+    invoke("battle", { player: playerSquad.getMonsters(), enemy: enemySquad.getMonsters() })
       .then((res) => {
-        const newPlayer = res[0]
-        const newEnemy = res[1]
-        mySquad.setMonsters(newPlayer)
+        const newPlayer: Monster[] = res[0]
+        const newEnemy: Monster[] = res[1]
+        playerSquad.setMonsters(newPlayer)
         enemySquad.setMonsters(newEnemy)
       })
   }
@@ -52,9 +52,9 @@
   <button onclick={battleToggle}>Fight!</button>
   {isBattling ? "Battling" : "Not fighting"}
   <section id="battleZone">
-    <h3>Power Level: {mySquad.totalStats()}</h3>
+    <h3>Power Level: {playerSquad.totalStats()}</h3>
     <div class="monsterList">
-      {#each mySquad.getMonsters() as monster }
+      {#each playerSquad.getMonsters() as monster }
         <div class="monster">
           <h3>{monster.name}</h3>
           <p>Level: {monster.lvl}</p>
