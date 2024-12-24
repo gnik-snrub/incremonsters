@@ -5,6 +5,7 @@ use monsters::*;
 use monsters::{ level_up };
 mod math;
 use math::battle::battle;
+use math::rewards::win_battle_rewards;
 
 use rand::Rng;
 
@@ -28,7 +29,7 @@ fn create_monster(lvl: i32) -> Monster {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![process_battle, create_monster, battle])
+        .invoke_handler(tauri::generate_handler![process_battle, create_monster, battle, win_battle_rewards])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

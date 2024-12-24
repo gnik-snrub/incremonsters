@@ -22,3 +22,13 @@ fn get_exp(player_team_size: i32, average_team_level: i32, slain: Monster) -> i3
     exp as i32
 }
 
+#[tauri::command]
+pub fn win_battle_rewards(dungeon_lvl: i32, mut player: Vec<Monster>, enemy: Vec<Monster>) -> (Vec<Monster>, i32) {
+    let rewards: i32 = get_rewards(dungeon_lvl, &enemy);
+    let mut exp_total: i32 = 0;
+    let average_team_level: i32 = player.iter().map(|m| m.lvl).sum::<i32>() / player.len() as i32;
+    for monster in enemy.iter() {
+        exp_total += get_exp(player.len() as i32, average_team_level, monster.clone());
+    }
+    (player, rewards)
+}
