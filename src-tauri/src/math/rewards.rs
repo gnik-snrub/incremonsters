@@ -13,3 +13,12 @@ fn get_rewards(dungeon_lvl: i32, slain: &Vec<Monster>) -> i32 {
     }
     reward_total.ceil() as i32
 }
+
+fn get_exp(player_team_size: i32, average_team_level: i32, slain: Monster) -> i32 {
+    let base_exp: f32 = (slain.hp + slain.atk + slain.spd + slain.def) as f32;
+    let team_size_divisor: f32 = player_team_size as f32;
+    let level_difference: f32 = (((2 * slain.lvl) + 10) as f32 / (slain.lvl + average_team_level + 10) as f32).powf(2.5);
+    let exp: f32 = ((base_exp * slain.lvl as f32) / 5 as f32) * (1 as f32 / team_size_divisor) * level_difference + 1.0;
+    exp as i32
+}
+
