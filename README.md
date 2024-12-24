@@ -1,7 +1,7 @@
-# Tauri + SvelteKit + TypeScript
+# Incremonsters
 
-This template should help get you started developing with Tauri, SvelteKit and TypeScript in Vite.
+This is a game built in Tauri, using Svelte for the frontend.
 
-## Recommended IDE Setup
+The primary inspiration for Incremonsters is the core game loop of Trimps, which involves an idle battle system, deep upgrade tree, and a prestige system, alongside the monster taming system and team building potential of Siralim Ultimate.
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
+Incremonsters intends to combine these aspects to create a deep engaging game experience.
