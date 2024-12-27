@@ -1,5 +1,6 @@
 use crate::models::Monster;
 use rand::{Rng, random};
+use rand::seq::SliceRandom;
 
 fn get_speed_order(player: &Vec<Monster>, enemy: &Vec<Monster>) -> Vec<(i32, String, usize)> {
     let mut combined: Vec<(i32, String, usize)> = Vec::new();
@@ -24,27 +25,16 @@ fn get_speed_order(player: &Vec<Monster>, enemy: &Vec<Monster>) -> Vec<(i32, Str
     combined
 }
 
-const NO_TARGET: usize = 5;
-
-fn get_target(monsters: &Vec<Monster>) -> usize {
+fn get_target(monsters: &Vec<Monster>) -> Option<usize> {
     let mut rng = rand::thread_rng();
-    let mut target: usize;
-    let mut target_list: Vec<usize> = vec![];
-    loop {
-        if target_list.len() == 4 {
-            target = NO_TARGET;
-            break;
-        }
-        target = rng.gen_range(0..4);
-        if target_list.contains(&target) {
-            continue;
-        }
-        if monsters[target].hp > 0 {
-            break;
-        }
-        target_list.push(target);
+    let alive: Vec<&Monster> = monsters.iter().filter(|m| m.hp > 0).collect();
+    let mut target_list: Vec<usize> = (0..alive.len()).collect();
+    target_list.shuffle(&mut rng);
+
+    for &i in target_list.iter() {
+        return Some(i)
     }
-    target
+    None
 }
 
 fn attack(attacker: &Monster, target: &mut Monster) {
@@ -65,19 +55,21 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>) -> [Vec<Monster
     let ordered: Vec<(i32, String, usize)> = get_speed_order(&player, &enemy);
     for (_, side, index) in ordered {
         if side == "player" {
-            let target_idx = get_target(&enemy);
-            if target_idx == NO_TARGET {
-                continue;
+            match get_target(&enemy) {
+                Some(target_idx) => {
+                    let target = &mut enemy[target_idx];
+                    attack(&player[index], target);
+                },
+                None => continue
             }
-            let target = &mut enemy[target_idx];
-            attack(&player[index], target);
         } else {
-            let target_idx = get_target(&player);
-            if target_idx == NO_TARGET {
-                continue;
+            match get_target(&player) {
+                Some(target_idx) => {
+                    let target = &mut player[target_idx];
+                    attack(&enemy[index], target);
+                },
+                None => continue
             }
-            let target = &mut player[target_idx];
-            attack(&enemy[index], target);
         }
     }
     [player, enemy]
