@@ -7,6 +7,7 @@
   let isBattling: boolean = $state(false)
   let battleInterval: number = 1000
   let battleIntervalId: ReturnType<typeof setInterval>
+
   function battleToggle() {
     if (isBattling) {
       clearInterval(battleIntervalId)
@@ -32,19 +33,39 @@
   })
 
   $effect(() => {
-    enemySquad.newMonsters(1, 4)
+    enemySquad.newMonsters(dungeonLvl, 4)
   })
 
+  let gold: number = $state(0)
+  let dungeonLvl: number = 1
+
+  function handleBattleWin(updatedPlayerMonsters: Monster[], goldEarned: number) {
+    playerSquad.setMonsters(updatedPlayerMonsters)
+    gold += goldEarned
+
+    dungeonLvl++
+    enemySquad.newMonsters(dungeonLvl, 4)
+  }
+
+  let calculatingRewards: boolean = false
+
   $effect(() => {
-    if (isBattling && enemySquad.getAllDead()) {
-      // Resource gain goes here
-      // Dungeon advancement goes here
-      enemySquad.newMonsters(1, 4)
+    if (isBattling && enemySquad.getAllDead() && !calculatingRewards) {
+      calculatingRewards = true
+      battleToggle()
+
+      invoke("win_battle_rewards", { dungeonLvl, player: playerSquad.getMonsters(), enemy: enemySquad.getMonsters() })
+        .then((res) => {
+          handleBattleWin(res[0], res[1])
+          calculatingRewards = false
+        })
+      battleToggle()
     }
   })
 
   $effect(() => {
     if (isBattling && playerSquad.getAllDead()) {
+      dungeonLvl = 1
       reset()
     }
   })
@@ -79,6 +100,7 @@
         <div class="monster">
           <h3>{monster.name}</h3>
           <p>Level: {monster.lvl}</p>
+          <p>EXP: {monster.exp}</p>
           <p>HP: {monster.current_hp}/{monster.hp}</p>
           <p>ATK: {monster.atk}</p>
           <p>DEF: {monster.def}</p>
