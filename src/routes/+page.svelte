@@ -3,6 +3,7 @@
   import { type Monster, isMonster } from "$lib/types/monster"
 
   import { playerSquad, enemySquad } from "../stores/monsters.svelte";
+  import { gold } from "../stores/resources.svelte";
 
   let isBattling: boolean = $state(false)
   let battleInterval: number = 1000
@@ -36,12 +37,11 @@
     enemySquad.newMonsters(dungeonLvl, 4)
   })
 
-  let gold: number = $state(0)
   let dungeonLvl: number = 1
 
   function handleBattleWin(updatedPlayerMonsters: Monster[], goldEarned: number) {
     playerSquad.setMonsters(updatedPlayerMonsters)
-    gold += goldEarned
+    gold.addGold(goldEarned)
 
     dungeonLvl++
     enemySquad.newMonsters(dungeonLvl, 4)
@@ -90,6 +90,7 @@
 <main class="container">
   <h1>Incremonsters</h1>
 
+  <h2>Gold: {gold.getGold()}</h2>
   <button onclick={battleToggle}>Fight!</button>
   <button onclick={reset}>Reset</button>
   {isBattling ? "Battling" : "Not fighting"}
