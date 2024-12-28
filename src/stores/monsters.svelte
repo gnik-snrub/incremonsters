@@ -63,11 +63,11 @@
       monsters = newMonsters
     }
 
-    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, allDead }
+    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster }
   }
 
   export function playerMonsters(): PlayerMonsterGroup {
-    let { getMonsters, setMonsters, totalStats, getMonster, setMonster, getAllDead, allDead } = monsterGroup()
+    let { getMonsters, setMonsters, totalStats, getMonster, setMonster, getAllDead } = monsterGroup()
 
     function heal(): void {
       const healed = getMonsters().map((monster) => {
@@ -79,12 +79,12 @@
       setMonsters(healed)
     }
 
-    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, heal, allDead }
+    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, heal }
   }
 
   export function enemyMonsters(): EnemyMonsterGroup {
 
-    let { getMonsters, setMonsters, totalStats, getMonster, setMonster, getAllDead, allDead } = monsterGroup()
+    let { getMonsters, setMonsters, totalStats, getMonster, setMonster, getAllDead } = monsterGroup()
 
     function newMonsters(lvl: number, amount: number) {
       setMonsters([])
@@ -101,6 +101,6 @@
       Promise.all(monsterPromises)
     }
 
-    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, newMonsters, allDead }
+    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, newMonsters }
   }
 </script>
