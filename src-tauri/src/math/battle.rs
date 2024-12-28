@@ -46,7 +46,9 @@ fn attack(attacker: &Monster, target: &mut Monster) {
 }
 
 pub fn damage_calculation(atk: i32, def: i32) -> i32 {
-    let calculated: f32 = atk as f32 * ((atk as f32) / if (def) <= 0 { atk } else { atk + def } as f32);
+    if atk <= 0 { return 0; }
+    let divisor: f32 = if def <= 0 { atk as f32 } else { (atk + def) as f32 };
+    let calculated: f32 = (atk as f32) * (atk as f32 / divisor);
     calculated.round() as i32
 }
 
