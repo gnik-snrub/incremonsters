@@ -3,7 +3,7 @@
   import { invoke } from "@tauri-apps/api/core"
   import { type Monster, isMonster } from "$lib/types/monster"
 
-  import { playerSquad, enemySquad } from "../stores/monsters.svelte";
+  import { playerSquad, enemySquad, stable } from "../stores/monsters.svelte";
   import { gold } from "../stores/resources.svelte";
 
   let isBattling: boolean = $state(false)
@@ -43,6 +43,10 @@
   function handleBattleWin(updatedPlayerMonsters: Monster[], goldEarned: number) {
     playerSquad.setMonsters(updatedPlayerMonsters)
     gold.addGold(goldEarned)
+
+    const tamedMonsterIdx: number = Math.random() * (enemySquad.getMonsters().length - 1) | 0
+    const tamedMonster: Monster = enemySquad.getMonsters()[tamedMonsterIdx]
+    stable.setMonsters([...stable.getMonsters(), tamedMonster])
 
     dungeonLvl++
     enemySquad.newMonsters(dungeonLvl, 4)
