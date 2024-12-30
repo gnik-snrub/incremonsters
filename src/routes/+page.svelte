@@ -100,9 +100,8 @@
   <section class="bg-purple-500 col-start-4 row-start-2">Level Up</section>
   <section class="h-full p-4 overflow-y-auto bg-red-500 col-span-2 row-span-2 col-start-5 row-start-1 grid grid-cols-4 gap-4 auto-rows-[25%] place-items-center">
     {#each stable.getMonsters() as monster}
-      <div class="w-16 h-16 border border-black">
+      <div class="w-full h-full border-4 rounded-full border-rose-800 bg-rose-400 grid place-items-center max-w-24 max-h-24">
         <h3>{monster.name}</h3>
-        <p>Level: {monster.lvl}</p>
       </div>
     {/each}
   </section>
