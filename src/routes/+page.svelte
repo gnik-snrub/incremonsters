@@ -98,7 +98,14 @@
   <section class="bg-blue-500 col-span-2 col-start-3">Resources</section>
   <section class="bg-yellow-500 col-start-3 row-start-2">Prestige</section>
   <section class="bg-purple-500 col-start-4 row-start-2">Level Up</section>
-  <section class="bg-red-500 col-span-2 row-span-2 col-start-5 row-start-1">Monster Management</section>
+  <section class="h-full p-4 overflow-y-auto bg-red-500 col-span-2 row-span-2 col-start-5 row-start-1 grid grid-cols-4 gap-4 auto-rows-[25%] place-items-center">
+    {#each stable.getMonsters() as monster}
+      <div class="w-16 h-16 border border-black">
+        <h3>{monster.name}</h3>
+        <p>Level: {monster.lvl}</p>
+      </div>
+    {/each}
+  </section>
   <section class="flex flex-col w-full bg-green-500 align-center row-span-2 col-span-6 row-start-3">
     <div class="flex flex-row justify-center w-full gap-10">
       <button onclick={battleToggle}>Fight!</button>
