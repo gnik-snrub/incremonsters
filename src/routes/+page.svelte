@@ -40,7 +40,7 @@
 
   let dungeonLvl: number = 1
 
-  function handleBattleWin(updatedPlayerMonsters: Monster[], goldEarned: number) {
+  async function handleBattleWin(updatedPlayerMonsters: Monster[], goldEarned: number) {
     playerSquad.setMonsters(updatedPlayerMonsters)
     gold.addGold(goldEarned)
 
@@ -54,17 +54,15 @@
 
   let calculatingRewards: boolean = false
 
-  $effect(() => {
     if (isBattling && enemySquad.getAllDead() && !calculatingRewards) {
+  $effect(async () => {
       calculatingRewards = true
       battleToggle()
 
-      invoke("win_battle_rewards", { dungeonLvl, player: playerSquad.getMonsters(), enemy: enemySquad.getMonsters() })
-        .then((res) => {
-          handleBattleWin(res[0], res[1])
-          calculatingRewards = false
-        })
       battleToggle()
+      const response = await invoke("win_battle_rewards", { dungeonLvl, player: playerSquad.getMonsters(), enemy: enemySquad.getMonsters() })
+      await handleBattleWin(response[0], response[1])
+      calculatingRewards = false
     }
   })
 

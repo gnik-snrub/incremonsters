@@ -86,7 +86,7 @@
 
     let { getMonsters, setMonsters, totalStats, getMonster, setMonster, getAllDead } = monsterGroup()
 
-    function newMonsters(lvl: number, amount: number) {
+    async function newMonsters(lvl: number, amount: number) {
       setMonsters([])
       const monsterPromises = []
       for (let i = 0; i < amount; i++) {
@@ -98,7 +98,7 @@
         monsterPromises.push(promise)
       }
 
-      Promise.all(monsterPromises)
+      await Promise.all(monsterPromises)
     }
 
     return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, newMonsters }
