@@ -37,14 +37,6 @@ fn get_target(monsters: &Vec<Monster>) -> Option<usize> {
     None
 }
 
-fn attack(attacker: &Monster, target: &mut Monster) {
-    if attacker.current_hp <= 0 {
-        return;
-    }
-    let damage: i32 = damage_calculation(attacker.atk, target.def);
-    target.current_hp = std::cmp::max(target.current_hp - damage, 0) as i32;
-}
-
 pub fn damage_calculation(atk: i32, def: i32) -> i32 {
     if atk <= 0 { return 0; }
     let divisor: f32 = if def <= 0 { atk as f32 } else { (atk + def) as f32 };
@@ -59,16 +51,16 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>) -> [Vec<Monster
         if side == "player" {
             match get_target(&enemy) {
                 Some(target_idx) => {
-                    let target = &mut enemy[target_idx];
-                    attack(&player[index], target);
+                    let damage: i32 = damage_calculation(player[index].atk, enemy[target_idx].def);
+                    enemy[target_idx].current_hp = std::cmp::max(enemy[target_idx].current_hp - damage, 0) as i32;
                 },
                 None => continue
             }
         } else {
             match get_target(&player) {
                 Some(target_idx) => {
-                    let target = &mut player[target_idx];
-                    attack(&enemy[index], target);
+                    let damage: i32 = damage_calculation(enemy[index].atk, player[target_idx].def);
+                    player[target_idx].current_hp = std::cmp::max(player[target_idx].current_hp - damage, 0) as i32;
                 },
                 None => continue
             }
