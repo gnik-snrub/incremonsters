@@ -39,6 +39,8 @@
   })
 
   let dungeonLvl: number = 1
+  let pendingDungeonLevelIncrease: boolean = $state(false)
+  let battleAutomation: boolean = false
 
   async function handleBattleWin(updatedPlayerMonsters: Monster[], goldEarned: number) {
     playerSquad.setMonsters(updatedPlayerMonsters)
@@ -48,18 +50,29 @@
     const tamedMonster: Monster = enemySquad.getMonsters()[tamedMonsterIdx]
     stable.setMonsters([...stable.getMonsters(), tamedMonster])
 
-    dungeonLvl++
-    enemySquad.newMonsters(dungeonLvl, 4)
+    pendingDungeonLevelIncrease = true
+
+    if (battleAutomation) {
+      await nextDungeon()
+    }
+  }
+
+  async function nextDungeon() {
+    if (pendingDungeonLevelIncrease) {
+      dungeonLvl += 1
+      await enemySquad.newMonsters(dungeonLvl, 4)
+      battleToggle()
+      pendingDungeonLevelIncrease = false
+    }
   }
 
   let calculatingRewards: boolean = false
 
-    if (isBattling && enemySquad.getAllDead() && !calculatingRewards) {
   $effect(async () => {
+    if (isBattling && enemySquad.getAllDead() && !calculatingRewards && !pendingDungeonLevelIncrease) {
       calculatingRewards = true
       battleToggle()
 
-      battleToggle()
       const response = await invoke("win_battle_rewards", { dungeonLvl, player: playerSquad.getMonsters(), enemy: enemySquad.getMonsters() })
       await handleBattleWin(response[0], response[1])
       calculatingRewards = false
@@ -86,6 +99,7 @@
         const newEnemy: Monster[] = res[1]
         playerSquad.setMonsters(newPlayer)
         enemySquad.setMonsters(newEnemy)
+        playerSquad.heal()
       })
   }
 
@@ -95,7 +109,8 @@
   <section class="bg-orange-500 col-span-2 row-span-2">Buyables</section>
   <section class="bg-blue-500 col-span-2 col-start-3">Resources</section>
   <section class="bg-yellow-500 col-start-3 row-start-2">Prestige</section>
-  <section class="bg-purple-500 col-start-4 row-start-2">Level Up</section>
+  <section class={`col-start-4 row-start-2 ${pendingDungeonLevelIncrease ? 'bg-purple-200' : 'bg-purple-500'}`} onclick={nextDungeon}>
+      {pendingDungeonLevelIncrease ? "Next dungeon!" : "Automation"}</section>
   <section class="h-full p-4 overflow-y-auto bg-red-500 col-span-2 row-span-2 col-start-5 row-start-1 grid grid-cols-4 gap-4 auto-rows-[25%] place-items-center">
     {#each stable.getMonsters() as monster}
       <div class="w-full h-full border-4 rounded-full border-rose-800 bg-rose-400 grid place-items-center max-w-24 max-h-24">
