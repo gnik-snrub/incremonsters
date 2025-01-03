@@ -5,6 +5,7 @@
 
   import { playerSquad, enemySquad, stable } from "../stores/monsters.svelte";
   import { gold } from "../stores/resources.svelte";
+  import MonsterManagement from "$lib/components/MonsterManagement.svelte";
 
   let isBattling: boolean = $state(false)
   let battleInterval: number = 1000
@@ -141,28 +142,7 @@ function handleDrop(event: DragEvent) {
   <section class="bg-yellow-500 col-start-3 row-start-2">Prestige</section>
   <section class={`col-start-4 row-start-2 ${pendingDungeonLevelIncrease ? 'bg-purple-200' : 'bg-purple-500'}`} onclick={nextDungeon}>
       {pendingDungeonLevelIncrease ? "Next dungeon!" : "Automation"}</section>
-  <section class="h-full p-4 bg-red-500 col-span-2 row-span-2 col-start-5 row-start-1 grid grid-rows-[auto_min-content] grid-cols-1">
-    <section class="w-full h-full overflow-y-auto grid grid-rows-[1em_auto] gap-4 place-items-center">
-      <h4>Stable</h4>
-      <div class="h-full w-full overflow-y-auto grid grid-cols-4 gap-4 auto-rows-[25%] place-items-center">
-        {#each stable.getMonsters() as monster, idx}
-          <div ondragstart={handleDragStart} data-idx={idx} draggable="true" class="w-full h-full border-4 rounded-full border-rose-800 bg-rose-400 grid place-items-center max-w-24 max-h-24">
-            <h3 class="select-none">{monster.name}</h3>
-          </div>
-        {/each}
-      </div>
-    </section>
-    <section class="w-full p-4 border-black border-t-2 grid grid-rows-[1em_auto] gap-4 place-items-center">
-      <h4 class="h-min">Squad</h4>
-      <div class="w-full grid grid-cols-4 place-items-center">
-      {#each playerSquad.getMonsters() as monster, idx}
-        <div ondrop={handleDrop} ondragover={handleDragOver} data-idx={idx} class="w-full h-full border-4 rounded-full hover:border-amber-400 border-amber-800 bg-amber-400 grid place-items-center max-w-24 max-h-24">
-          <h3 class="select-none">{monster.name}</h3>
-        </div>
-      {/each}
-      </div>
-    </section>
-  </section>
+  <MonsterManagement />
   <section class="flex flex-col w-full bg-green-500 align-center row-span-2 col-span-6 row-start-3">
     <div class="flex flex-row justify-center w-full gap-10">
       <button onclick={battleToggle}>Fight!</button>
