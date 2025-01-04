@@ -15,4 +15,5 @@ export type EnemyMonsterGroup = MonsterGroup & {
 
 export type PlayerMonsterGroup = MonsterGroup & {
   heal: () => void,
+  upgradedMonsters: () => Monster[]
 }

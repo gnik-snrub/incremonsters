@@ -3,6 +3,7 @@
 
   import { type Monster, isMonster } from "$lib/types/monster"
   import { type MonsterGroup, type EnemyMonsterGroup, type PlayerMonsterGroup } from "$lib/types/monstergroup"
+  import { monsterBoosts } from "./shop.svelte"
 
   export const stable: MonsterGroup = monsterGroup()
   export const playerSquad: PlayerMonsterGroup = playerMonsters()
@@ -79,7 +80,23 @@
       setMonsters(healed)
     }
 
-    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, heal }
+    let applyUpgrades = $derived.by(() => {
+      const [atkBoost, defBoost, spdBoost] = monsterBoosts
+      return getMonsters().map((monster: Monster) => {
+        return {
+          ...monster,
+          atk: Math.floor(monster.atk * ((atkBoost.amountBought() * atkBoost.effectMagnitude) + 1)),
+          def: Math.floor(monster.def * ((defBoost.amountBought() * defBoost.effectMagnitude) + 1)),
+          spd: Math.floor(monster.spd * ((spdBoost.amountBought() * spdBoost.effectMagnitude) + 1)),
+        }
+      })
+    })
+
+    function upgradedMonsters(): Monster[] {
+      return applyUpgrades
+    }
+
+    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, heal, upgradedMonsters }
   }
 
   export function enemyMonsters(): EnemyMonsterGroup {
