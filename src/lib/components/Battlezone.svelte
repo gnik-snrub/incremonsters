@@ -56,7 +56,7 @@
 
     pendingDungeonLevelIncrease = true
 
-    // After battle automation implemented, remove the ! from this
+    // TODO - After battle automation implemented, remove the ! from this
     if (!battleAutomation) {
       await nextDungeon()
     }
@@ -106,7 +106,7 @@
 
   <section class="flex flex-col w-full bg-green-500 align-center row-span-2 col-span-6 row-start-3">
     <div class="flex flex-row justify-center w-full gap-10">
-      <button onclick={battleToggle}>Fight!</button>
+      <button onclick={battleToggle}>{isBattling ? 'Stop fighting' : 'Fight!'}</button>
       <button onclick={reset}>Reset</button>
     </div>
     <div class="flex flex-row self-center w-3/5 pt-8 border-t-4 border-black justify-evenly gap-4">
@@ -122,7 +122,7 @@
       {/each}
     </div>
     <div class="flex flex-row self-center w-3/5 pt-8 mt-8 border-t-4 border-black justify-evenly gap-4">
-      {#each playerSquad.getMonsters() as monster }
+      {#each playerSquad.upgradedMonsters() as monster }
         <div>
           <h3>{monster.name}</h3>
           <p>Level: {monster.lvl}</p>
