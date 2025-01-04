@@ -3,7 +3,7 @@
 
   export const gold: Gold = goldFunc()
 
-  function goldFunc() {
+  function goldFunc(): Gold {
     let gold = $state(0)
 
     function getGold(): number {
