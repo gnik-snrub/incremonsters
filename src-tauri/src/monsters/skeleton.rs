@@ -9,5 +9,5 @@ pub const SKELETON_GROWTH_RATE: GrowthRates = GrowthRates {
     hp: 1.04,
     atk: 1.02,
     def: 1.01,
-    spd: 1.04
+    spd: 1.04,
 };

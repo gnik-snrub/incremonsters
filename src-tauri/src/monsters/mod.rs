@@ -4,22 +4,22 @@ use zombie::ZOMBIE_GROWTH_RATE;
 
 use crate::models::Monster;
 
-pub mod skeleton;
 pub mod ogre;
+pub mod skeleton;
 pub mod zombie;
 
 pub struct GrowthRates {
     pub hp: f32,
     pub atk: f32,
     pub def: f32,
-    pub spd: f32
+    pub spd: f32,
 }
 
 const MISSING_GROWTH_RATE: GrowthRates = GrowthRates {
     hp: 0.0,
     atk: 0.0,
     def: 0.0,
-    spd: 0.0
+    spd: 0.0,
 };
 
 pub fn level_up(monster: &mut Monster) {
@@ -37,6 +37,6 @@ fn find_growth_rate(monster: Monster) -> GrowthRates {
         "skeleton" => SKELETON_GROWTH_RATE,
         "ogre" => OGRE_GROWTH_RATE,
         "zombie" => ZOMBIE_GROWTH_RATE,
-        _ => MISSING_GROWTH_RATE
+        _ => MISSING_GROWTH_RATE,
     }
 }

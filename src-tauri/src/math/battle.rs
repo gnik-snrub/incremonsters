@@ -1,6 +1,6 @@
 use crate::models::Monster;
-use rand::{Rng, random};
 use rand::seq::SliceRandom;
+use rand::{random, Rng};
 
 fn get_speed_order(player: &Vec<Monster>, enemy: &Vec<Monster>) -> Vec<(i32, String, usize)> {
     let mut combined: Vec<(i32, String, usize)> = Vec::new();
@@ -32,14 +32,20 @@ fn get_target(monsters: &Vec<Monster>) -> Option<usize> {
     target_list.shuffle(&mut rng);
 
     for &i in target_list.iter() {
-        return Some(i)
+        return Some(i);
     }
     None
 }
 
 pub fn damage_calculation(atk: i32, def: i32) -> i32 {
-    if atk <= 0 { return 0; }
-    let divisor: f32 = if def <= 0 { atk as f32 } else { (atk + def) as f32 };
+    if atk <= 0 {
+        return 0;
+    }
+    let divisor: f32 = if def <= 0 {
+        atk as f32
+    } else {
+        (atk + def) as f32
+    };
     let calculated: f32 = (atk as f32) * (atk as f32 / divisor);
     calculated.round() as i32
 }
@@ -52,17 +58,19 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>) -> [Vec<Monster
             match get_target(&enemy) {
                 Some(target_idx) => {
                     let damage: i32 = damage_calculation(player[index].atk, enemy[target_idx].def);
-                    enemy[target_idx].current_hp = std::cmp::max(enemy[target_idx].current_hp - damage, 0) as i32;
-                },
-                None => continue
+                    enemy[target_idx].current_hp =
+                        std::cmp::max(enemy[target_idx].current_hp - damage, 0) as i32;
+                }
+                None => continue,
             }
         } else {
             match get_target(&player) {
                 Some(target_idx) => {
                     let damage: i32 = damage_calculation(enemy[index].atk, player[target_idx].def);
-                    player[target_idx].current_hp = std::cmp::max(player[target_idx].current_hp - damage, 0) as i32;
-                },
-                None => continue
+                    player[target_idx].current_hp =
+                        std::cmp::max(player[target_idx].current_hp - damage, 0) as i32;
+                }
+                None => continue,
             }
         }
     }

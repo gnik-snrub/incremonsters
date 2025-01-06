@@ -9,5 +9,5 @@ pub const OGRE_GROWTH_RATE: GrowthRates = GrowthRates {
     hp: 1.05,
     atk: 1.02,
     def: 1.03,
-    spd: 1.01
+    spd: 1.01,
 };
