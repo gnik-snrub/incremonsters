@@ -3,10 +3,7 @@
   import { type Monster, isMonster } from "$lib/types/monster"
   import { playerSquad, enemySquad, stable } from "../../stores/monsters.svelte";
   import { gold } from "../../stores/resources.svelte";
-
-  let battleInterval: number = 1000
-  let isBattling: boolean = $state(false)
-  let battleIntervalId: ReturnType<typeof setInterval>
+  import { battle } from "../../stores/battleState.svelte";
 
   $effect(() => {
     // Just for testing...
@@ -23,24 +20,6 @@
   $effect(() => {
     enemySquad.newMonsters(dungeonLvl, 4)
   })
-
-  function battleToggle() {
-    if (isBattling) {
-      clearInterval(battleIntervalId)
-      isBattling = false
-    } else {
-      battleIntervalId = setInterval(() => {
-        invokeBattle()
-      }, battleInterval)
-      isBattling = true
-    }
-  }
-
-  function reset() {
-    clearInterval(battleIntervalId)
-    isBattling = false
-    playerSquad.heal()
-  }
 
   let dungeonLvl: number = 1
   let pendingDungeonLevelIncrease: boolean = $state(false)
@@ -66,7 +45,7 @@
     if (pendingDungeonLevelIncrease) {
       dungeonLvl += 1
       await enemySquad.newMonsters(dungeonLvl, 4)
-      battleToggle()
+      battle.battleToggle()
       pendingDungeonLevelIncrease = false
     }
   }
@@ -74,9 +53,9 @@
   let calculatingRewards: boolean = false
 
   $effect(async () => {
-    if (isBattling && enemySquad.getAllDead() && !calculatingRewards && !pendingDungeonLevelIncrease) {
+    if (battle.isBattling() && enemySquad.getAllDead() && !calculatingRewards && !pendingDungeonLevelIncrease) {
       calculatingRewards = true
-      battleToggle()
+      battle.battleToggle()
 
       const response = await invoke("win_battle_rewards", { dungeonLvl, player: playerSquad.getMonsters(), enemy: enemySquad.getMonsters() })
       await handleBattleWin(response[0], response[1])
@@ -85,29 +64,18 @@
   })
 
   $effect(() => {
-    if (isBattling && playerSquad.getAllDead()) {
+    if (battle.isBattling() && playerSquad.getAllDead()) {
       dungeonLvl = 1
-      reset()
+      battle.reset()
     }
   })
-
-  function invokeBattle() {
-    invoke("battle", { player: playerSquad.getMonsters(), enemy: enemySquad.getMonsters() })
-      .then((res) => {
-        const newPlayer: Monster[] = res[0]
-        const newEnemy: Monster[] = res[1]
-        playerSquad.setMonsters(newPlayer)
-        enemySquad.setMonsters(newEnemy)
-        playerSquad.heal()
-      })
-  }
 
 </script>
 
   <section class="flex flex-col w-full bg-green-500 align-center row-span-2 col-span-6 row-start-3">
     <div class="flex flex-row justify-center w-full gap-10">
-      <button onclick={battleToggle}>{isBattling ? 'Stop fighting' : 'Fight!'}</button>
-      <button onclick={reset}>Reset</button>
+      <button onclick={battle.battleToggle}>{battle.isBattling() ? 'Stop fighting' : 'Fight!'}</button>
+      <button onclick={battle.reset}>Reset</button>
     </div>
     <div class="flex flex-row self-center w-3/5 pt-8 border-t-4 border-black justify-evenly gap-4">
       {#each enemySquad.getMonsters() as monster }
