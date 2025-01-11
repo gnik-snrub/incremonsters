@@ -1,6 +1,6 @@
 use crate::models::Monster;
 use rand::seq::SliceRandom;
-use rand::{random, Rng};
+use rand::{random};
 
 fn get_speed_order(player: &Vec<Monster>, enemy: &Vec<Monster>) -> Vec<(i32, String, usize)> {
     let mut combined: Vec<(i32, String, usize)> = Vec::new();
