@@ -71,10 +71,10 @@
     let { getMonsters, setMonsters, totalStats, getMonster, setMonster, getAllDead } = monsterGroup()
 
     function heal(): void {
-      const healed = getMonsters().map((monster) => {
+      const healed = getMonsters().map((monster, index) => {
         return {
           ...monster,
-          current_hp: monster.hp
+          current_hp: upgradedMonsters()[index].hp
         }
       })
       setMonsters(healed)
