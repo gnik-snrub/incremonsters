@@ -8,6 +8,11 @@
 
   export const monsterBoosts: BoostEffect[] = [atkBoost, defBoost, spdBoost, hpBoost]
 
+  export const expBoost: BoostEffect = $state(boostEffect("EXP Boost", 10, 1.25, "exp", 0.1))
+  export const goldBoost: BoostEffect = $state(boostEffect("Gold Boost", 10, 1.25, "gold", 0.1))
+
+  export const rewardBoosts: BoostEffect[] = [expBoost, goldBoost]
+
   function storeItem(name: string, baseCost: number, costScaling: number): StoreItem {
     let quantity: number = $state(0)
     let calculatedCost: number = $derived(Math.floor(baseCost * (Math.pow(costScaling, quantity))))
