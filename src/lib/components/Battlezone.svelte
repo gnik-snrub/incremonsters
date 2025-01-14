@@ -68,6 +68,7 @@
     if (battle.isBattling() && playerSquad.getAllDead()) {
       dungeonLvl = 1
       battle.reset()
+      enemySquad.newMonsters(dungeonLvl, 4)
     }
   })
 
