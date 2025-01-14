@@ -81,13 +81,14 @@
     }
 
     let applyUpgrades = $derived.by(() => {
-      const [atkBoost, defBoost, spdBoost] = monsterBoosts
+      const [atkBoost, defBoost, spdBoost, hpBoost] = monsterBoosts
       return getMonsters().map((monster: Monster) => {
         return {
           ...monster,
           atk: Math.floor(monster.atk * ((atkBoost.amountBought() * atkBoost.effectMagnitude) + 1)),
           def: Math.floor(monster.def * ((defBoost.amountBought() * defBoost.effectMagnitude) + 1)),
           spd: Math.floor(monster.spd * ((spdBoost.amountBought() * spdBoost.effectMagnitude) + 1)),
+          hp: Math.floor(monster.hp * ((hpBoost.amountBought() * hpBoost.effectMagnitude) + 1)),
         }
       })
     })

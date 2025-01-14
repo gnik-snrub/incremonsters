@@ -4,8 +4,9 @@
   export const atkBoost: BoostEffect = $state(boostEffect("Atk Boost", 10, 1.25, "atk", 0.1))
   export const defBoost: BoostEffect = $state(boostEffect("Def Boost", 10, 1.25, "def", 0.1))
   export const spdBoost: BoostEffect = $state(boostEffect("Spd Boost", 10, 1.25, "spd", 0.1))
+  export const hpBoost: BoostEffect = $state(boostEffect("HP Boost", 10, 1.25, "hp", 0.1))
 
-  export const monsterBoosts: BoostEffect[] = [atkBoost, defBoost, spdBoost]
+  export const monsterBoosts: BoostEffect[] = [atkBoost, defBoost, spdBoost, hpBoost]
 
   function storeItem(name: string, baseCost: number, costScaling: number): StoreItem {
     let quantity: number = $state(0)
