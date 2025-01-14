@@ -22,6 +22,7 @@
         battleActive = true
       }
     }
+
     function reset(): void {
       clearInterval(battleIntervalId)
       battleActive = false

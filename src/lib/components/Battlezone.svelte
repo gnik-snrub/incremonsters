@@ -4,6 +4,7 @@
   import { playerSquad, enemySquad, stable } from "../../stores/monsters.svelte";
   import { gold } from "../../stores/resources.svelte";
   import { battle } from "../../stores/battleState.svelte";
+    import {onMount} from "svelte";
 
   $effect(() => {
     // Just for testing...
@@ -17,11 +18,11 @@
     }
   })
 
-  $effect(() => {
+  onMount(() => {
     enemySquad.newMonsters(dungeonLvl, 4)
   })
 
-  let dungeonLvl: number = 1
+  let dungeonLvl: number = $state(1)
   let pendingDungeonLevelIncrease: boolean = $state(false)
   let battleAutomation: boolean = false
 
@@ -72,6 +73,7 @@
 
 </script>
 
+<p style:color="white">Dungeon level: {dungeonLvl}</p>
   <section class="flex flex-col w-full bg-green-500 align-center row-span-2 col-span-6 row-start-3">
     <div class="flex flex-row justify-center w-full gap-10">
       <button onclick={battle.battleToggle}>{battle.isBattling() ? 'Stop fighting' : 'Fight!'}</button>
