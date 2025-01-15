@@ -4,6 +4,7 @@
   import { playerSquad, enemySquad, stable } from "../../stores/monsters.svelte";
   import { gold } from "../../stores/resources.svelte";
   import { battle } from "../../stores/battleState.svelte";
+  import { rewardBoosts } from '../../stores/shop.svelte'
     import {onMount} from "svelte";
 
   $effect(() => {
@@ -58,7 +59,21 @@
       calculatingRewards = true
       battle.battleToggle()
 
-      const response = await invoke("win_battle_rewards", { dungeonLvl, player: playerSquad.getMonsters(), enemy: enemySquad.getMonsters() })
+      let expModifiers = []
+      let goldModifiers = []
+
+      for (const boost of rewardBoosts) {
+        if (boost.effectType === 'exp') {
+          expModifiers.push(boost.coreEffect())
+        } else if (boost.effectType === 'gold') {
+          goldModifiers.push(boost.coreEffect())
+        }
+      }
+
+      const rewardModifiers = {exp: expModifiers, gold: goldModifiers}
+      console.log(rewardModifiers)
+
+      const response = await invoke("win_battle_rewards", { dungeonLvl, player: playerSquad.getMonsters(), enemy: enemySquad.getMonsters(), rewardModifiers })
       await handleBattleWin(response[0], response[1])
       calculatingRewards = false
     }
