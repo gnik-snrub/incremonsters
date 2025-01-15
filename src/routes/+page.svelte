@@ -9,7 +9,7 @@
 
   import { playerSquad, stable, enemySquad } from "../stores/monsters.svelte"
   import { gold } from "../stores/resources.svelte"
-  import { atkBoost, defBoost, spdBoost } from "../stores/shop.svelte"
+  import { atkBoost, defBoost, spdBoost, hpBoost, expBoost, goldBoost } from "../stores/shop.svelte"
   import { battle } from "../stores/battleState.svelte"
 
   async function save() {
@@ -26,6 +26,10 @@
         atk_boost: atkBoost.amountBought(),
         def_boost: defBoost.amountBought(),
         spd_boost: spdBoost.amountBought(),
+        hp_boost: hpBoost.amountBought(),
+
+        exp_boost: expBoost.amountBought(),
+        gold_boost: goldBoost.amountBought(),
       },
     }
     console.log(saveData)
@@ -56,6 +60,7 @@
     atkBoost.reset()
     defBoost.reset()
     spdBoost.reset()
+    hpBoost.reset()
 
     for (let i = 0; i < JSON.parse(saveData).shopData.atk_boost; i++) {
       atkBoost.buy()
@@ -66,6 +71,20 @@
     for (let i = 0; i < JSON.parse(saveData).shopData.spd_boost; i++) {
       spdBoost.buy()
     }
+    for (let i = 0; i < JSON.parse(saveData).shopData.hp_boost; i++) {
+      hpBoost.buy()
+    }
+
+    expBoost.reset()
+    goldBoost.reset()
+
+    for (let i = 0; i < JSON.parse(saveData).shopData.exp_boost; i++) {
+      expBoost.buy()
+    }
+    for (let i = 0; i < JSON.parse(saveData).shopData.gold_boost; i++) {
+      goldBoost.buy()
+    }
+
   }
 </script>
 
