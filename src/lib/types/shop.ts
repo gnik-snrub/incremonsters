@@ -8,5 +8,10 @@ export type StoreItem = {
 
 export type BoostEffect = StoreItem & {
   effectType: string,
-  effectMagnitude: number
+  effectMagnitude: number,
+  coreEffect: () => {
+    quantity: number,
+    type: string,
+    magnitude: number
+  },
 }

@@ -40,6 +40,11 @@
     effectType: string, effectMagnitude: number): BoostEffect {
     let { name, amountBought, nextCost, buy, reset } = storeItem(itemName, itemBaseCost, itemCostScaling)
 
-    return { name, amountBought, nextCost , effectType, effectMagnitude, buy, reset }
+    function coreEffect(): { quantity: number, type: string, magnitude: number } {
+      let quantity = amountBought()
+      return { quantity, target: effectType, magnitude: effectMagnitude }
+    }
+
+    return { name, amountBought, nextCost , effectType, effectMagnitude, buy, reset, coreEffect }
   }
 </script>
