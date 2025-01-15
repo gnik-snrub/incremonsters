@@ -1,16 +1,21 @@
 use crate::{models::Monster, monsters::level_up};
 use rand::Rng;
+use serde::Deserialize;
 
 const REWARD_BASE: f32 = 10.0;
 const REWARD_GROWTH: f32 = 1.07;
 
-fn get_rewards(dungeon_lvl: i32, slain: &Vec<Monster>) -> i32 {
+fn get_rewards(dungeon_lvl: i32, slain: &Vec<Monster>, gold_boosts: Vec<RewardModifier>) -> i32 {
     let mut rng = rand::thread_rng();
     let mut reward_total: f32 = 0.0;
     for monster in slain.iter() {
         let variance: f32 = rng.gen_range(0.8..1.2);
         reward_total +=
             (REWARD_BASE * REWARD_GROWTH.powf(monster.lvl as f32)) * variance * dungeon_lvl as f32;
+    }
+    for boost in gold_boosts.iter() {
+        let modifier = 1.0 + (boost.magnitude * boost.quantity as f32);
+        reward_total *= modifier;
     }
     ((reward_total * 100.0).round() / 100.0) as i32
 }
@@ -40,13 +45,29 @@ fn calc_level_up(mut player: Vec<Monster>, exp: i32) -> Vec<Monster> {
     player
 }
 
+#[derive(Deserialize, Debug)]
+struct RewardModifier {
+    quantity: i32,
+    target: String,
+    magnitude: f32,
+}
+
+#[derive(Deserialize)]
+pub struct ModifierCollection {
+    gold: Vec<RewardModifier>,
+    exp: Vec<RewardModifier>,
+}
+
 #[tauri::command]
 pub fn win_battle_rewards(
     dungeon_lvl: i32,
     mut player: Vec<Monster>,
     enemy: Vec<Monster>,
+    reward_modifiers: ModifierCollection,
 ) -> (Vec<Monster>, i32) {
-    let rewards: i32 = get_rewards(dungeon_lvl, &enemy);
+    let gold_boosts = reward_modifiers.gold;
+    let exp_boosts = reward_modifiers.exp;
+    let rewards: i32 = get_rewards(dungeon_lvl, &enemy, gold_boosts);
     let mut exp_total: i32 = 0;
     let average_team_level: i32 = if player.is_empty() {
         1
@@ -55,6 +76,9 @@ pub fn win_battle_rewards(
     };
     for monster in enemy.iter() {
         exp_total += get_exp(player.len() as i32, average_team_level, monster.clone());
+    }
+    for boost in exp_boosts.iter() {
+        exp_total = (exp_total as f32 * (1.0 + (boost.magnitude * boost.quantity as f32))) as i32;
     }
     player = calc_level_up(player, exp_total);
     (player, rewards)
