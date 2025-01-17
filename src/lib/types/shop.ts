@@ -4,6 +4,7 @@ export type StoreItem = {
   nextCost: () => number,
   buy: () => void,
   reset: () => void,
+  description: string,
 }
 
 export type BoostEffect = StoreItem & {
@@ -11,7 +12,8 @@ export type BoostEffect = StoreItem & {
   effectMagnitude: number,
   coreEffect: () => {
     quantity: number,
-    type: string,
+    target: string,
     magnitude: number
   },
+  description: string,
 }
