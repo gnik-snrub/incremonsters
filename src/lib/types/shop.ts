@@ -17,3 +17,8 @@ export type BoostEffect = StoreItem & {
   },
   description: string,
 }
+
+export type IntermissionEffect = StoreItem & {
+  purchaseLimit: number | null,
+  run: () => void,
+}
