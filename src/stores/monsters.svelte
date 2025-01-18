@@ -70,12 +70,17 @@
   export function playerMonsters(): PlayerMonsterGroup {
     let { getMonsters, setMonsters, totalStats, getMonster, setMonster, getAllDead } = monsterGroup()
 
-    function heal(): void {
+    function heal(healRate: number): void {
       const healed = getMonsters().map((monster, index) => {
-        return {
-          ...monster,
-          current_hp: upgradedMonsters()[index].hp
-        }
+        const heals = Math.ceil(upgradedMonsters()[index].hp * (healRate / 100))
+        return heals + monster.current_hp > upgradedMonsters()[index].hp
+          ? {
+            ...monster,
+            current_hp: upgradedMonsters()[index].hp
+          } : {
+            ...monster,
+            current_hp: monster.current_hp + heals
+          }
       })
       setMonsters(healed)
     }

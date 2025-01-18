@@ -26,7 +26,7 @@
     function reset(): void {
       clearInterval(battleIntervalId)
       battleActive = false
-      playerSquad.heal()
+      playerSquad.heal(100)
     }
 
     function invokeBattle(): void {
