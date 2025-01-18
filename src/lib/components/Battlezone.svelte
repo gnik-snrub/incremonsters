@@ -4,8 +4,8 @@
   import { playerSquad, enemySquad, stable } from "../../stores/monsters.svelte";
   import { gold } from "../../stores/resources.svelte";
   import { battle } from "../../stores/battleState.svelte";
-  import { rewardBoosts } from '../../stores/shop.svelte'
-    import {onMount} from "svelte";
+  import { rewardBoosts, intermissionEffects } from '../../stores/shop.svelte'
+  import { onMount } from "svelte";
 
   $effect(() => {
     // Just for testing...
@@ -36,6 +36,10 @@
     stable.setMonsters([...stable.getMonsters(), tamedMonster])
 
     pendingDungeonLevelIncrease = true
+
+    for (let i = 0; i < intermissionEffects.length; i++) {
+      intermissionEffects[i].run()
+    }
 
     // TODO - After battle automation implemented, remove the ! from this
     if (!battleAutomation) {

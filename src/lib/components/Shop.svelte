@@ -1,9 +1,9 @@
 <script lang="ts">
   import { gold } from "../../stores/resources.svelte"
   import type { StoreItem } from "$lib/types/storeitem"
-  import { monsterBoosts, rewardBoosts } from "../../stores/shop.svelte"
+  import { monsterBoosts, rewardBoosts, intermissionEffects } from "../../stores/shop.svelte"
 
-  const items = [...monsterBoosts, ...rewardBoosts]
+  const items = [...monsterBoosts, ...rewardBoosts, ...intermissionEffects]
 
   function buyItem(item: StoreItem) {
     if (gold.getGold() >= item.nextCost()) {

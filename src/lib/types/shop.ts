@@ -20,5 +20,5 @@ export type BoostEffect = StoreItem & {
 
 export type IntermissionEffect = StoreItem & {
   purchaseLimit: number | null,
-  run: () => void,
+  run: () => void | null,
 }
