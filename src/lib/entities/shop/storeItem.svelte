@@ -1,7 +1,12 @@
 <script lang="ts" module>
   import { type StoreItem } from "$lib/types/shop"
 
-  export function storeItem(name: string, baseCost: number, costScaling: number, description: string): StoreItem {
+  export function storeItem(
+    name: string,
+    baseCost: number,
+    costScaling: number,
+    description: string
+  ): StoreItem {
     let quantity: number = $state(0)
     let calculatedCost: number = $derived(Math.floor(baseCost * (Math.pow(costScaling, quantity))))
 

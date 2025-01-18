@@ -2,8 +2,14 @@
   import { type BoostEffect } from "$lib/types/shop"
   import { storeItem } from "./storeItem.svelte"
 
-  export function boostEffect(itemName: string, itemBaseCost: number, itemCostScaling: number, describe: string,
-    effectType: string, effectMagnitude: number): BoostEffect {
+  export function boostEffect(
+    itemName: string,
+    itemBaseCost: number,
+    itemCostScaling: number,
+    describe: string,
+    effectType: string,
+    effectMagnitude: number
+  ): BoostEffect {
     let { name, amountBought, nextCost, buy, reset, description } = storeItem(itemName, itemBaseCost, itemCostScaling, describe)
 
     function coreEffect(): { quantity: number, target: string, magnitude: number } {
