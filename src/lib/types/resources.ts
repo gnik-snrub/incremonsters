@@ -1,5 +1,5 @@
-export type Gold = {
-  getGold: () => number,
-  addGold: (amount: number) => void,
-  subtractGold: (amount: number) => void,
+export type Resource = {
+  get: () => number,
+  add: (amount: number) => void,
+  subtract: (amount: number) => void,
 }

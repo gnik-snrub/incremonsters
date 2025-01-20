@@ -6,8 +6,8 @@
   const items = [...monsterBoosts, ...rewardBoosts, ...intermissionEffects]
 
   function buyItem(item: StoreItem) {
-    if (gold.getGold() >= item.nextCost()) {
-      gold.subtractGold(item.nextCost())
+    if (gold.get() >= item.nextCost()) {
+      gold.subtract(item.nextCost())
       item.buy()
     }
   }

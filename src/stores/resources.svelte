@@ -1,23 +1,23 @@
 <script lang="ts" module>
-  import { type Gold } from "$lib/types/resources"
+  import { type Resource, type ArcaneShards } from "$lib/types/resources"
 
-  export const gold: Gold = goldFunc()
+  export const gold: Resource = goldFunc()
 
-  function goldFunc(): Gold {
+  function goldFunc(): Resource {
     let gold = $state(0)
 
-    function getGold(): number {
+    function get(): number {
       return gold
     }
 
-    function addGold(amount: number) {
+    function add(amount: number) {
       gold += amount
     }
 
-    function subtractGold(amount: number) {
+    function subtract(amount: number) {
       gold -= amount
     }
 
-    return { getGold, addGold, subtractGold }
+    return { get, add, subtract }
   }
 </script>

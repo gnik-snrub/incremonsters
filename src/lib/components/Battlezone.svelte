@@ -29,7 +29,7 @@
 
   async function handleBattleWin(updatedPlayerMonsters: Monster[], goldEarned: number) {
     playerSquad.setMonsters(updatedPlayerMonsters)
-    gold.addGold(goldEarned)
+    gold.add(goldEarned)
 
     const tamedMonsterIdx: number = Math.random() * (enemySquad.getMonsters().length - 1) | 0
     const tamedMonster: Monster = enemySquad.getMonsters()[tamedMonsterIdx]
