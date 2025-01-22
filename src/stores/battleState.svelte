@@ -6,6 +6,25 @@
   let battleInterval: number = 1000
   let battleIntervalId: ReturnType<typeof setInterval>
 
+  export const dungeonLvl = $state(createDungeonLvl())
+
+  function createDungeonLvl()  {
+    let lvl: number = $state(1)
+    function get(): number {
+      return lvl
+    }
+
+    function increment(add: number = 0): void {
+      lvl += add
+    }
+
+    function reset(): void {
+      lvl = 1
+    }
+
+    return {get, increment, reset}
+  }
+
   export const battle = battleState()
 
   function battleState() {

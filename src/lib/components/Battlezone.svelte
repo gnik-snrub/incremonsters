@@ -3,7 +3,7 @@
   import { type Monster, isMonster } from "$lib/types/monster"
   import { playerSquad, enemySquad, stable } from "../../stores/monsters.svelte";
   import { gold } from "../../stores/resources.svelte";
-  import { battle } from "../../stores/battleState.svelte";
+  import { battle, dungeonLvl } from "../../stores/battleState.svelte";
   import { rewardBoosts, intermissionEffects } from '../../stores/shop.svelte'
   import { onMount } from "svelte";
 
@@ -20,10 +20,9 @@
   })
 
   onMount(() => {
-    enemySquad.newMonsters(dungeonLvl, 4)
+    enemySquad.newMonsters(dungeonLvl.get(), 4)
   })
 
-  let dungeonLvl: number = $state(1)
   let pendingDungeonLevelIncrease: boolean = $state(false)
   let battleAutomation: boolean = false
 
@@ -49,8 +48,8 @@
 
   async function nextDungeon() {
     if (pendingDungeonLevelIncrease) {
-      dungeonLvl += 1
-      await enemySquad.newMonsters(dungeonLvl, 4)
+      dungeonLvl.increment(1)
+      await enemySquad.newMonsters(dungeonLvl.get(), 4)
       battle.battleToggle()
       pendingDungeonLevelIncrease = false
     }
@@ -77,7 +76,7 @@
       const rewardModifiers = {exp: expModifiers, gold: goldModifiers}
       console.log(rewardModifiers)
 
-      const response = await invoke("win_battle_rewards", { dungeonLvl, player: playerSquad.getMonsters(), enemy: enemySquad.getMonsters(), rewardModifiers })
+      const response = await invoke("win_battle_rewards", { dungeonLvl: dungeonLvl.get(), player: playerSquad.getMonsters(), enemy: enemySquad.getMonsters(), rewardModifiers })
       await handleBattleWin(response[0], response[1])
       calculatingRewards = false
     }
@@ -85,15 +84,15 @@
 
   $effect(() => {
     if (battle.isBattling() && playerSquad.getAllDead()) {
-      dungeonLvl = 1
+      dungeonLvl.reset()
       battle.reset()
-      enemySquad.newMonsters(dungeonLvl, 4)
+      enemySquad.newMonsters(dungeonLvl.get(), 4)
     }
   })
 
 </script>
 
-<p style:color="white">Dungeon level: {dungeonLvl}</p>
+<p style:color="white">Dungeon level: {dungeonLvl.get()}</p>
   <section class="flex flex-col w-full bg-green-500 align-center row-span-2 col-span-6 row-start-3">
     <div class="flex flex-row justify-center w-full gap-10">
       <button onclick={battle.battleToggle}>{battle.isBattling() ? 'Stop fighting' : 'Fight!'}</button>
