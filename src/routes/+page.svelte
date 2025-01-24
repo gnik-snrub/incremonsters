@@ -4,8 +4,7 @@
   import Battlezone from "$lib/components/Battlezone.svelte"
   import MonsterManagement from "$lib/components/MonsterManagement.svelte"
   import Shop from "$lib/components/Shop.svelte"
-
-  import { save, load } from "$lib/helper/save.svelte"
+  import Prestige from "$lib/components/Prestige.svelte"
   import Tools from "$lib/components/Tools.svelte"
   import Resources from "$lib/components/Resources.svelte"
 
@@ -13,8 +12,8 @@
 
 <main class="h-screen p-4 bg-black grid gap-4 grid-cols-6 grid-rows-4">
   <Shop />
-  <section class="bg-yellow-500 col-start-3 row-start-2">Prestige</section>
   <Resources />
+  <Prestige />
   <Tools />
   <MonsterManagement />
   <Battlezone />
