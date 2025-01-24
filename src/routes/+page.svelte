@@ -6,17 +6,18 @@
   import Shop from "$lib/components/Shop.svelte"
 
   import { save, load } from "$lib/helper/save.svelte"
+  import Resources from "$lib/components/Resources.svelte"
 
 </script>
 
 <main class="h-screen p-4 bg-black grid gap-4 grid-cols-6 grid-rows-4">
   <Shop />
-  <section class="bg-blue-500 col-span-2 col-start-3">Gold: {gold.getGold()}</section>
   <section class="bg-yellow-500 col-start-3 row-start-2">Prestige</section>
   <section class={`col-start-4 row-start-2 bg-purple-500`}>
     <button onclick={save}>Save Game</button>
     <button onclick={load}>Load Game</button>
   </section>
+  <Resources />
   <MonsterManagement />
   <Battlezone />
 </main>
