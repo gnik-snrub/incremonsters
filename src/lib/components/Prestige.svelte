@@ -33,9 +33,9 @@
   }
 </script>
 
-<section class="bg-yellow-500 col-start-3 row-start-2">
+<section class="bg-yellow-500 col-start-3 row-start-2 grid grid-rows-2 place-items-center">
   <h2>Prestige</h2>
-  <button onclick={handleOpen}>Open Prestige Shop</button>
+  <button onclick={handleOpen} class="w-full h-full border-t-2 border-black">Open Prestige Shop</button>
 </section>
 <dialog bind:this={modal} class="items-center w-1/2 px-8 bg-yellow-500 border-8 border-black h-1/2 focus:outline-none">
   <div class="flex flex-col items-center w-full h-full p-8">
