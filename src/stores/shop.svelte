@@ -22,4 +22,6 @@
   }
 
   export const intermissionEffects: IntermissionEffect[] = [bandages]
+
+  export const allShopItems = [atkBoost, defBoost, spdBoost, hpBoost, expBoost, goldBoost, bandages]
 </script>
