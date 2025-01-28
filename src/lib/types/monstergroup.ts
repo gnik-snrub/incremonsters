@@ -7,6 +7,7 @@ export type MonsterGroup = {
   getAllDead: () => boolean,
   getMonster: (id: String) => Monster,
   setMonster: (monster: Monster) => void,
+  reset: () => void,
 }
 
 export type EnemyMonsterGroup = MonsterGroup & {
@@ -14,6 +15,6 @@ export type EnemyMonsterGroup = MonsterGroup & {
 }
 
 export type PlayerMonsterGroup = MonsterGroup & {
-  heal: () => void,
+  heal: (healRate: number) => void,
   upgradedMonsters: () => Monster[]
 }

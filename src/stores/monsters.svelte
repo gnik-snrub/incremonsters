@@ -64,11 +64,15 @@
       monsters = newMonsters
     }
 
-    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster }
+    function reset(): void {
+      monsters = []
+    }
+
+    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, reset }
   }
 
   export function playerMonsters(): PlayerMonsterGroup {
-    let { getMonsters, setMonsters, totalStats, getMonster, setMonster, getAllDead } = monsterGroup()
+    let { getMonsters, setMonsters, totalStats, getMonster, setMonster, getAllDead, reset } = monsterGroup()
 
     function heal(healRate: number): void {
       const healed = getMonsters().map((monster, index) => {
@@ -102,12 +106,12 @@
       return applyUpgrades
     }
 
-    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, heal, upgradedMonsters }
+    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, heal, upgradedMonsters, reset }
   }
 
   export function enemyMonsters(): EnemyMonsterGroup {
 
-    let { getMonsters, setMonsters, totalStats, getMonster, setMonster, getAllDead } = monsterGroup()
+    let { getMonsters, setMonsters, totalStats, getMonster, setMonster, getAllDead, reset } = monsterGroup()
 
     async function newMonsters(lvl: number, amount: number) {
       setMonsters([])
@@ -124,6 +128,6 @@
       await Promise.all(monsterPromises)
     }
 
-    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, newMonsters }
+    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, newMonsters, reset }
   }
 </script>
