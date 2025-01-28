@@ -8,19 +8,39 @@
   function goldFunc(): Resource {
     let gold = $state(0)
 
+    let peakGold = 0
+    let highestGold: number = $derived.by(() => {
+      peakGold = Math.max(peakGold, gold)
+      return peakGold
+    })
+
+    function getPeak(): number {
+      return highestGold
+    }
+
+    function reset(): void {
+      peakGold = 0
+      gold = 0
+    }
+
     function get(): number {
       return gold
     }
 
-    function add(amount: number) {
+    function add(amount: number): void {
       gold += amount
     }
 
-    function subtract(amount: number) {
+    function subtract(amount: number): void {
       gold -= amount
     }
 
-    return { get, add, subtract }
+    function load(peak: number, current: number): void {
+      peakGold = peak
+      gold = current
+    }
+
+    return { get, add, subtract, getPeak, reset, load }
   }
 
   function arcaneShardsFunc(): ArcaneShards {
