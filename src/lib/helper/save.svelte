@@ -1,8 +1,8 @@
 <script lang="ts" module>
   import { playerSquad, stable, enemySquad } from "../../stores/monsters.svelte"
-  import { gold } from "../../stores/resources.svelte"
+  import { gold, arcaneShards } from "../../stores/resources.svelte"
   import { expBoost, goldBoost, atkBoost, defBoost, spdBoost, hpBoost, bandages } from "../../stores/shop.svelte"
-  import { battle } from "../../stores/battleState.svelte"
+  import { battle, dungeonLvl } from "../../stores/battleState.svelte"
   import { invoke } from "@tauri-apps/api/core"
 
   export async function save() {
@@ -13,7 +13,20 @@
         enemy_squad: enemySquad.getMonsters(),
       },
       resourceData: {
-        gold: gold.get(),
+        gold: {
+          current: gold.get(),
+          peak: gold.getPeak(),
+        },
+        arcaneShards: {
+          current: arcaneShards.get(),
+          peak: arcaneShards.getPeak(),
+        }
+      },
+      battleData: {
+        dungeonLvl: {
+          current: dungeonLvl.get(),
+          peak: dungeonLvl.getPeak(),
+        },
       },
       shopData: {
         atk_boost: atkBoost.amountBought(),
@@ -37,8 +50,20 @@
     playerSquad.setMonsters(JSON.parse(saveData).monsterData.player_squad)
     enemySquad.setMonsters(JSON.parse(saveData).monsterData.enemy_squad)
 
-    gold.subtract(gold.get())
-    gold.add(JSON.parse(saveData).resourceData.gold)
+    const goldPeak = JSON.parse(saveData).resourceData.gold.peak
+    const goldCurrent = JSON.parse(saveData).resourceData.gold.current
+    gold.reset()
+    gold.load(goldPeak, goldCurrent)
+
+    const shardsPeak = JSON.parse(saveData).resourceData.arcaneShards.peak
+    const shardsCurrent = JSON.parse(saveData).resourceData.arcaneShards.current
+    arcaneShards.reset()
+    arcaneShards.load(shardsPeak, shardsCurrent)
+
+    dungeonLvl.reset()
+    dungeonLvl.increment((JSON.parse(saveData).battleData.dungeonLvl.peak - 1))
+    dungeonLvl.reset()
+    dungeonLvl.increment((JSON.parse(saveData).battleData.dungeonLvl.current - 1))
 
     atkBoost.reset()
     defBoost.reset()
