@@ -22,7 +22,21 @@
       lvl = 1
     }
 
-    return {get, increment, reset}
+    let peakDungeonLvl = 0
+    let highestDungeonLvl: number = $derived.by(() => {
+      peakDungeonLvl = Math.max(peakDungeonLvl, lvl)
+      return peakDungeonLvl
+    })
+
+    function getPeak(): number {
+      return highestDungeonLvl
+    }
+
+    function resetPeak(): void {
+      peakDungeonLvl = 1
+      reset()
+    }
+    return { get, increment, reset, getPeak, resetPeak }
   }
 
   export const battle = battleState()
