@@ -92,11 +92,9 @@
 
 </script>
 
-<p style:color="white">Dungeon level: {dungeonLvl.get()}</p>
   <section class="flex flex-col w-full bg-green-500 align-center row-span-2 col-span-6 row-start-3">
     <div class="flex flex-row justify-center w-full gap-10">
       <button onclick={battle.battleToggle}>{battle.isBattling() ? 'Stop fighting' : 'Fight!'}</button>
-      <button onclick={battle.reset}>Reset</button>
     </div>
     <div class="flex flex-row self-center w-3/5 pt-8 border-t-4 border-black justify-evenly gap-4">
       {#each enemySquad.getMonsters() as monster }
