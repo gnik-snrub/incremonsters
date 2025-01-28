@@ -46,20 +46,18 @@
   function arcaneShardsFunc(): ArcaneShards {
     let shards = $state(0)
 
-    let peakDungeonLvl = 1
-    let highestDungeonLvl: number = $derived.by(() => {
-      peakDungeonLvl = Math.max(peakDungeonLvl, dungeonLvl.get())
-      return peakDungeonLvl
+    let peakShards = 0
+    let highestShards: number = $derived.by(() => {
+      peakShards = Math.max(peakShards, shards)
+      return peakShards
     })
 
-    let peakGold = 0
-    let highestGold: number = $derived.by(() => {
-      peakGold = Math.max(peakGold, gold.get())
-      return peakGold
-    })
+    function getPeak(): number {
+      return highestShards
+    }
 
     let pending = $derived.by(() => {
-      return Math.ceil((highestDungeonLvl - 25) * (highestGold / 100000))
+      return Math.ceil((dungeonLvl.getPeak() - 25) * (gold.getPeak() / 100000))
     })
 
     function get(): number {
@@ -82,7 +80,17 @@
       return pending
     }
 
-    return { get, add, subtract, acquirePending, getPending }
+    function reset() {
+      peakShards = 0
+      shards = 0
+    }
+
+    function load(peak: number, current: number) {
+      peakShards = peak
+      shards = current
+    }
+
+    return { get, add, subtract, acquirePending, getPending, getPeak, reset, load }
   }
 
 </script>

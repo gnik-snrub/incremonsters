@@ -10,4 +10,5 @@ export type Resource = {
 export type ArcaneShards = Resource & {
   acquirePending: () => void,
   getPending: () => number,
+  getPeak: () => number,
 }
