@@ -14,7 +14,12 @@ fn get_rewards(dungeon_lvl: i32, slain: &Vec<Monster>, gold_boosts: Vec<RewardMo
             (REWARD_BASE * REWARD_GROWTH.powf(monster.lvl as f32)) * variance * dungeon_lvl as f32;
     }
     for boost in gold_boosts.iter() {
-        let modifier = 1.0 + (boost.magnitude * boost.quantity as f32);
+        let mut modifier = 0.0;
+        if boost.operation == "add" {
+            modifier = 1.0 + (boost.magnitude * boost.quantity as f32);
+        } else if boost.operation == "mult" {
+            modifier = (1.0 + boost.magnitude).powf(boost.quantity as f32);
+        }
         reward_total *= modifier;
     }
     ((reward_total * 100.0).round() / 100.0) as i32
@@ -48,9 +53,10 @@ fn calc_level_up(mut player: Vec<Monster>, exp: i32) -> Vec<Monster> {
 #[derive(Deserialize, Debug)]
 struct RewardModifier {
     quantity: i32,
-    target: String,
     magnitude: f32,
+    operation: String,
 }
+
 
 #[derive(Deserialize)]
 pub struct ModifierCollection {
@@ -78,7 +84,11 @@ pub fn win_battle_rewards(
         exp_total += get_exp(player.len() as i32, average_team_level, monster.clone());
     }
     for boost in exp_boosts.iter() {
-        exp_total = (exp_total as f32 * (1.0 + (boost.magnitude * boost.quantity as f32))) as i32;
+        if boost.operation == "add" {
+            exp_total = (exp_total as f32 * (1.0 + (boost.magnitude * boost.quantity as f32))) as i32;
+        } else if boost.operation == "mult" {
+            exp_total = (exp_total as f32 * ((1.0 + boost.magnitude).powf(boost.quantity as f32))) as i32;
+        }
     }
     player = calc_level_up(player, exp_total);
     (player, rewards)
