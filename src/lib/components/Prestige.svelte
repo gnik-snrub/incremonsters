@@ -6,6 +6,21 @@
   import { invoke } from "@tauri-apps/api/core";
   import { isMonster } from "$lib/types/monster";
 
+  import { monsterBoosts, rewardBoosts } from "../../stores/prestige.svelte"
+    import StoreItem from "$lib/entities/shop/storeItem.svelte";
+
+  const items = [...monsterBoosts, ...rewardBoosts ]
+
+  let itemDescription = $state("")
+
+  function handleEnter(event: Event) {
+    itemDescription = (event.currentTarget as HTMLButtonElement).dataset.description || ""
+  }
+
+  function handleExit() {
+    itemDescription = ""
+  }
+
   let modal: HTMLDialogElement
 
   function handleOpen() {
@@ -18,25 +33,6 @@
 
   function handleClose() {
     modal.close()
-  }
-
-  const testItem = {
-    name: "testing",
-    description: "testing",
-    nextCost: () => 10,
-    amountBought: () => 0,
-    buy: () => {},
-  }
-
-  let items = [testItem, testItem, testItem, testItem, testItem, testItem, testItem, testItem, testItem, testItem, testItem, testItem, testItem, testItem, testItem, testItem, testItem, testItem, testItem, testItem, testItem, testItem, testItem]
-  let itemDescription = $state("")
-
-  function handleEnter(event: Event) {
-    itemDescription = (event.currentTarget as HTMLButtonElement).dataset.description || ""
-  }
-
-  function handleExit() {
-    itemDescription = ""
   }
 
   function triggerAwakening() {
@@ -62,6 +58,14 @@
     }
     enemySquad.newMonsters(dungeonLvl.get(), 4)
   }
+
+  function buyItem(item: StoreItem) {
+    if (gold.get() >= item.nextCost()) {
+      gold.subtract(item.nextCost())
+      item.buy()
+    }
+  }
+
 </script>
 
 <section class="bg-yellow-500 col-start-3 row-start-2 grid grid-rows-2 place-items-center">
