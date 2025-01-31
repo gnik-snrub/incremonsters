@@ -23,3 +23,8 @@ export type IntermissionEffect = StoreItem & {
   purchaseLimit: number | null,
   run: () => void | null,
 }
+
+export type PrestigeBoostEffect = BoostEffect & {
+  mode: string, // Base vs growth
+  operation: string, // Add vs mult
+}
