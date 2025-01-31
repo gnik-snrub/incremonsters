@@ -14,7 +14,7 @@
 
     function coreEffect(): { quantity: number, target: string, magnitude: number } {
       let quantity = amountBought()
-      return { quantity, target: effectType, magnitude: effectMagnitude }
+      return { quantity, target: effectType, magnitude: effectMagnitude, operation: 'add' } // Defaults to addition
     }
 
     return { name, amountBought, nextCost , effectType, effectMagnitude, buy, reset, coreEffect, description }

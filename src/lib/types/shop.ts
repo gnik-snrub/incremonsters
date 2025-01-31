@@ -13,7 +13,8 @@ export type BoostEffect = StoreItem & {
   coreEffect: () => {
     quantity: number,
     target: string,
-    magnitude: number
+    magnitude: number,
+    operation: string,
   },
   description: string,
 }
