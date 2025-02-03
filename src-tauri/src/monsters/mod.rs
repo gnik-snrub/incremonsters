@@ -2,7 +2,7 @@ use ogre::OGRE_GROWTH_RATE;
 use skeleton::SKELETON_GROWTH_RATE;
 use zombie::ZOMBIE_GROWTH_RATE;
 
-use crate::models::Monster;
+use crate::{math::rewards::{GrowthBoosts, GrowthModifier}, models::Monster};
 
 pub mod ogre;
 pub mod skeleton;
@@ -22,14 +22,29 @@ const MISSING_GROWTH_RATE: GrowthRates = GrowthRates {
     spd: 0.0,
 };
 
-pub fn level_up(monster: &mut Monster) {
+pub fn level_up(monster: &mut Monster, modifiers: &GrowthBoosts) {
     let growth_rates: GrowthRates = find_growth_rate(monster.clone());
     monster.lvl += 1;
-    monster.hp = (monster.hp as f32 * growth_rates.hp).ceil() as i32;
-    monster.atk = (monster.atk as f32 * growth_rates.atk).ceil() as i32;
-    monster.def = (monster.def as f32 * growth_rates.def).ceil() as i32;
-    monster.spd = (monster.spd as f32 * growth_rates.spd).ceil() as i32;
+    monster.hp = get_new_stat(monster.hp, growth_rates.hp, &modifiers.0);
+    monster.atk = get_new_stat(monster.atk, growth_rates.atk, &modifiers.1);
+    monster.def = get_new_stat(monster.def, growth_rates.def, &modifiers.2);
+    monster.spd = get_new_stat(monster.spd, growth_rates.spd, &modifiers.3);
     monster.current_hp = monster.hp;
+}
+
+fn get_new_stat(original_stat: i32, growth_rate: f32, modifiers: &Vec<GrowthModifier>) -> i32 {
+    let mut new_stat = original_stat as f32;
+    let mut final_growth_rate = growth_rate;
+
+    for modifier in modifiers {
+        if modifier.operation == "add" {
+            final_growth_rate += modifier.magnitude;
+        } else if modifier.operation == "mult" {
+            final_growth_rate *= modifier.magnitude;
+        }
+    }
+    new_stat = (new_stat * final_growth_rate).ceil();
+    new_stat as i32
 }
 
 fn find_growth_rate(monster: Monster) -> GrowthRates {
