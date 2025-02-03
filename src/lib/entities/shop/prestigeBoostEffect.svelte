@@ -17,9 +17,9 @@
 
     function coreEffect(): { quantity: number, target: string, magnitude: number } {
       let quantity = amountBought()
-      return { quantity, target: effectType, magnitude: effectMagnitude, operation: 'mult' }
+      return { quantity, target: effectType, magnitude: effectMagnitude, operation, mode }
     }
 
-    return { name, amountBought, nextCost , effectType, effectMagnitude, buy, reset, coreEffect, description, operation, mode }
+    return { name, amountBought, nextCost , effectType, effectMagnitude, buy, reset, coreEffect, description, }
   }
 </script>
