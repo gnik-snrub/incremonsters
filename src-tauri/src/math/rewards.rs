@@ -37,13 +37,13 @@ fn get_exp(player_team_size: i32, average_team_level: i32, slain: Monster) -> i3
     exp as i32
 }
 
-fn calc_level_up(mut player: Vec<Monster>, exp: i32) -> Vec<Monster> {
+fn calc_level_up(mut player: Vec<Monster>, exp: i32, growth_boosts: GrowthBoosts) -> Vec<Monster> {
     for mut monster in player.iter_mut() {
         let mut monsters_exp: i32 = exp + monster.exp;
         monster.exp = 0;
         while monsters_exp >= monster.lvl.pow(3) {
             monsters_exp -= monster.lvl.pow(3);
-            level_up(&mut monster);
+            level_up(&mut monster, &growth_boosts);
         }
         monster.exp = std::cmp::max(monsters_exp, 0);
     }
@@ -57,12 +57,27 @@ struct RewardModifier {
     operation: String,
 }
 
+#[derive(Deserialize)]
+pub struct GrowthModifier {
+    pub quantity: i32,
+    pub magnitude: f32,
+    pub operation: String,
+    pub mode: String,
+    pub target: String
+}
 
 #[derive(Deserialize)]
 pub struct ModifierCollection {
     gold: Vec<RewardModifier>,
     exp: Vec<RewardModifier>,
+    hp: Vec<GrowthModifier>,
+    atk: Vec<GrowthModifier>,
+    spd: Vec<GrowthModifier>,
+    def: Vec<GrowthModifier>,
 }
+
+// HP Attack Defense Speed
+pub struct GrowthBoosts(pub Vec<GrowthModifier>, pub Vec<GrowthModifier>, pub Vec<GrowthModifier>, pub Vec<GrowthModifier>);
 
 #[tauri::command]
 pub fn win_battle_rewards(
@@ -73,6 +88,7 @@ pub fn win_battle_rewards(
 ) -> (Vec<Monster>, i32) {
     let gold_boosts = reward_modifiers.gold;
     let exp_boosts = reward_modifiers.exp;
+    let growth_boosts: GrowthBoosts = GrowthBoosts(reward_modifiers.hp, reward_modifiers.atk, reward_modifiers.def, reward_modifiers.spd);
     let rewards: i32 = get_rewards(dungeon_lvl, &enemy, gold_boosts);
     let mut exp_total: i32 = 0;
     let average_team_level: i32 = if player.is_empty() {
@@ -90,6 +106,6 @@ pub fn win_battle_rewards(
             exp_total = (exp_total as f32 * ((1.0 + boost.magnitude).powf(boost.quantity as f32))) as i32;
         }
     }
-    player = calc_level_up(player, exp_total);
+    player = calc_level_up(player, exp_total, growth_boosts);
     (player, rewards)
 }

@@ -8,7 +8,7 @@ use monsters::level_up;
 use monsters::*;
 mod math;
 use math::battle::battle;
-use math::rewards::win_battle_rewards;
+use math::rewards::{win_battle_rewards, GrowthBoosts};
 
 use rand::Rng;
 
@@ -23,7 +23,7 @@ fn create_monster(lvl: i32) -> Monster {
     let mut rng = rand::thread_rng();
     let mut monster = monster_options[rng.gen_range(0..monster_options.len())]();
     for _ in 1..lvl {
-        level_up(&mut monster);
+        level_up(&mut monster, &GrowthBoosts(vec![], vec![], vec![], vec![]));
     }
     monster
 }
