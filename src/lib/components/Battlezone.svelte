@@ -5,7 +5,7 @@
   import { gold } from "../../stores/resources.svelte";
   import { battle, dungeonLvl } from "../../stores/battleState.svelte";
   import { rewardBoosts as shopRewardBoosts, intermissionEffects } from '../../stores/shop.svelte'
-  import { rewardBoosts as prestigeRewardBoosts } from '../../stores/prestige.svelte'
+  import { rewardBoosts as prestigeRewardBoosts, monsterBoosts as prestigeMonsterBoosts } from '../../stores/prestige.svelte'
   import { onMount } from "svelte";
 
   $effect(() => {
@@ -74,9 +74,20 @@
         }
       }
 
-      const rewardModifiers = {exp: expModifiers, gold: goldModifiers}
-
-      const response = await invoke("win_battle_rewards", { dungeonLvl: dungeonLvl.get(), player: playerSquad.getMonsters(), enemy: enemySquad.getMonsters(), rewardModifiers })
+      const rewardModifiers = {
+        exp: expModifiers,
+        gold: goldModifiers,
+        atk: [prestigeMonsterBoosts[0].coreEffect()],
+        def: [prestigeMonsterBoosts[1].coreEffect()],
+        spd: [prestigeMonsterBoosts[2].coreEffect()],
+        hp: [prestigeMonsterBoosts[3].coreEffect()]
+      }
+      const response = await invoke("win_battle_rewards", {
+        dungeonLvl: dungeonLvl.get(),
+        player: playerSquad.getMonsters(),
+        enemy: enemySquad.getMonsters(),
+        rewardModifiers,
+      })
       await handleBattleWin(response[0], response[1])
       calculatingRewards = false
     }
