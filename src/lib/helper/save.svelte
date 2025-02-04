@@ -2,6 +2,13 @@
   import { playerSquad, stable, enemySquad } from "../../stores/monsters.svelte"
   import { gold, arcaneShards } from "../../stores/resources.svelte"
   import { expBoost, goldBoost, atkBoost, defBoost, spdBoost, hpBoost, bandages } from "../../stores/shop.svelte"
+  import { expBoost as expBoostPrestige,
+    goldBoost as goldBoostPrestige,
+    atkBoost as atkBoostPrestige,
+    defBoost as defBoostPrestige,
+    spdBoost as spdBoostPrestige,
+    hpBoost as hpBoostPrestige
+  } from "../../stores/prestige.svelte"
   import { battle, dungeonLvl } from "../../stores/battleState.svelte"
   import { invoke } from "@tauri-apps/api/core"
 
@@ -39,6 +46,15 @@
 
         bandages: bandages.amountBought(),
       },
+      arcaneShopData: {
+        atk_boost: atkBoostPrestige.amountBought(),
+        def_boost: defBoostPrestige.amountBought(),
+        spd_boost: spdBoostPrestige.amountBought(),
+        hp_boost: hpBoostPrestige.amountBought(),
+
+        exp_boost: expBoostPrestige.amountBought(),
+        gold_boost: goldBoostPrestige.amountBought(),
+      }
     }
     await invoke("save", { data: JSON.stringify(saveData) })
   }
@@ -65,6 +81,7 @@
     dungeonLvl.reset()
     dungeonLvl.increment((JSON.parse(saveData).battleData.dungeonLvl.current - 1))
 
+    // Shop stuff
     atkBoost.reset()
     defBoost.reset()
     spdBoost.reset()
@@ -97,6 +114,36 @@
 
     for (let i = 0; i < JSON.parse(saveData).shopData.bandages; i++) {
       bandages.buy()
+    }
+
+    // Arcane Shards shop stuff
+
+    atkBoostPrestige.reset()
+    defBoostPrestige.reset()
+    spdBoostPrestige.reset()
+    hpBoostPrestige.reset()
+
+    for (let i = 0; i < JSON.parse(saveData).arcaneShopData.atk_boost; i++) {
+      atkBoostPrestige.buy()
+    }
+    for (let i = 0; i < JSON.parse(saveData).arcaneShopData.def_boost; i++) {
+      defBoostPrestige.buy()
+    }
+    for (let i = 0; i < JSON.parse(saveData).arcaneShopData.spd_boost; i++) {
+      spdBoostPrestige.buy()
+    }
+    for (let i = 0; i < JSON.parse(saveData).arcaneShopData.hp_boost; i++) {
+      hpBoostPrestige.buy()
+    }
+
+    expBoostPrestige.reset()
+    goldBoostPrestige.reset()
+
+    for (let i = 0; i < JSON.parse(saveData).arcaneShopData.exp_boost; i++) {
+      expBoostPrestige.buy()
+    }
+    for (let i = 0; i < JSON.parse(saveData).arcaneShopData.gold_boost; i++) {
+      goldBoostPrestige.buy()
     }
   }
 </script>
