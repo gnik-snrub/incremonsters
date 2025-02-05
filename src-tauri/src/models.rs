@@ -13,6 +13,31 @@ pub struct Monster {
     pub spd: i32,
     pub exp: i32,
     pub lvl: i32,
+    pub traits: Vec<Trait>
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
+pub enum Trigger {
+    OnHit,
+    OnDamage,
+    StartOfTurn,
+    EndOfTurn,
+}
+
+type CallbackFn = fn(Option<Vec<Monster>>, Option<Vec<Monster>>) -> (Option<Vec<Monster>>, Option<Vec<Monster>>);
+
+fn default_callback() -> CallbackFn {
+    |_: Option<Vec<Monster>>, _: Option<Vec<Monster>>| (None, None)
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
+pub struct Trait {
+    name: String,
+    description: String,
+    trigger: Trigger,
+    #[serde(skip)]
+    #[serde(default = "default_callback")]
+    callback: CallbackFn,
 }
 
 impl Monster {
@@ -27,6 +52,7 @@ impl Monster {
             spd,
             exp: 0,
             lvl: 1,
+            traits: Vec::new()
         }
     }
 }
