@@ -55,4 +55,28 @@ impl Monster {
             traits: Vec::new()
         }
     }
+
+    pub fn add_trait(&mut self, trait_: Trait) {
+        self.traits.push(trait_);
+    }
+
+    pub fn trigger_traits(
+        &self,
+        trigger: Trigger,
+        allies: Option<Vec<Monster>>,
+        enemies: Option<Vec<Monster>>,
+    ) -> (Option<Vec<Monster>>, Option<Vec<Monster>>) {
+        let mut current_allies = allies;
+        let mut current_enemies = enemies;
+
+        for trait_ in &self.traits {
+            if trait_.trigger == trigger {
+                let (new_allies, new_enemies) = (trait_.callback)(current_allies, current_enemies);
+                current_allies = new_allies;
+                current_enemies = new_enemies;
+            }
+        }
+
+        (current_allies, current_enemies)
+    }
 }
