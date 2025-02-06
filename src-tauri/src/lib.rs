@@ -13,11 +13,6 @@ use math::rewards::{win_battle_rewards, GrowthBoosts};
 use rand::Rng;
 
 #[tauri::command]
-fn process_battle() {
-    // TODO
-}
-
-#[tauri::command]
 fn create_monster(lvl: i32) -> Monster {
     let monster_options: [fn() -> Monster; 3] = [skeleton::new, ogre::new, zombie::new];
     let mut rng = rand::thread_rng();
