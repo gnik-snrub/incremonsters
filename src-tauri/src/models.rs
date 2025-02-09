@@ -24,10 +24,16 @@ pub enum Trigger {
     EndOfTurn,
 }
 
-type CallbackFn = fn(Option<Vec<Monster>>, Option<Vec<Monster>>) -> (Option<Vec<Monster>>, Option<Vec<Monster>>);
+type CallbackFn = fn(
+    self_value: Option<Monster>,
+    opponent: Option<Monster>,
+    allies: Option<Vec<Monster>>,
+    enemies: Option<Vec<Monster>>,
+    damage: Option<i32>,
+) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>);
 
 fn default_callback() -> CallbackFn {
-    |_: Option<Vec<Monster>>, _: Option<Vec<Monster>>| (None, None)
+    |_: Option<Monster>, _: Option<Monster>, _: Option<Vec<Monster>>, _: Option<Vec<Monster>>, _: Option<i32>| (None, None, None, None, None)
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
