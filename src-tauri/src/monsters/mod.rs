@@ -1,5 +1,6 @@
 use ogre::OGRE_GROWTH_RATE;
 use skeleton::SKELETON_GROWTH_RATE;
+use stonekin::StonekinType;
 use zombie::ZOMBIE_GROWTH_RATE;
 
 use crate::{math::rewards::{GrowthBoosts, GrowthModifier}, models::Monster};
@@ -7,6 +8,16 @@ use crate::{math::rewards::{GrowthBoosts, GrowthModifier}, models::Monster};
 pub mod ogre;
 pub mod skeleton;
 pub mod zombie;
+pub mod stonekin;
+
+pub enum MonsterFamily {
+    Stonekin(Option<StonekinType>),
+}
+
+pub trait MonsterType {
+    fn generate(&self) -> Monster;
+    fn random() -> Self;
+}
 
 pub struct GrowthRates {
     pub hp: f32,
@@ -53,5 +64,12 @@ fn find_growth_rate(monster: Monster) -> GrowthRates {
         "ogre" => OGRE_GROWTH_RATE,
         "zombie" => ZOMBIE_GROWTH_RATE,
         _ => MISSING_GROWTH_RATE,
+    }
+}
+
+fn generate_monster(family: MonsterFamily) -> Monster {
+    match family {
+        MonsterFamily::Stonekin(None) => StonekinType::random().generate(),
+        MonsterFamily::Stonekin(Some(monster)) => monster.generate(),
     }
 }
