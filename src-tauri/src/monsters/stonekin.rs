@@ -1,6 +1,12 @@
+use rand::seq::SliceRandom;
+use rand::thread_rng;
+
 use crate::models::Monster;
 use crate::monsters::GrowthRates;
 
+use super::MonsterType;
+
+#[derive(Clone, Copy)]
 pub enum StonekinType {
     Slateblade,
     Pebblebound,
@@ -8,12 +14,18 @@ pub enum StonekinType {
     Mountainheart,
 }
 
-pub fn new(type_: StonekinType) -> Monster {
-    match type_ {
-        StonekinType::Slateblade => new_slateblade(),
-        StonekinType::Pebblebound => new_pebblebound(),
-        StonekinType::Bolderfist => new_bolderfist(),
-        StonekinType::Mountainheart => new_mountainheart(),
+impl MonsterType for StonekinType {
+    fn generate(&self) -> Monster {
+        match self {
+            StonekinType::Slateblade => Monster::new("Slateblade", 100, 17, 15, 18),
+            StonekinType::Pebblebound => Monster::new("Pebblebound", 100, 12, 18, 20),
+            StonekinType::Bolderfist => Monster::new("Bolderfist", 100, 15, 25, 10),
+            StonekinType::Mountainheart => Monster::new("Mountainheart", 110, 20, 20, 8),
+        }
+    }
+    fn random() -> Self {
+        let options = [StonekinType::Slateblade, StonekinType::Pebblebound, StonekinType::Bolderfist, StonekinType::Mountainheart];
+        *options.choose(&mut thread_rng()).unwrap()
     }
 }
 
@@ -24,22 +36,6 @@ pub fn get_growth_rate(type_: StonekinType) -> GrowthRates {
         StonekinType::Bolderfist => BOLDERFIST_GROWTH_RATE,
         StonekinType::Mountainheart => MOUNTAINHEART_GROWTH_RATE,
     }
-}
-
-pub fn new_slateblade() -> Monster {
-    Monster::new("Slateblade", 100, 17, 15, 18)
-}
-
-pub fn new_pebblebound() -> Monster {
-    Monster::new("Pebblebound", 100, 12, 18, 20)
-}
-
-pub fn new_bolderfist() -> Monster {
-    Monster::new("Bolderfist", 100, 15, 25, 10)
-}
-
-pub fn new_mountainheart() -> Monster {
-    Monster::new("Mountainheart", 110, 20, 20, 8)
 }
 
 pub const SLATEBLADE_GROWTH_RATE: GrowthRates = GrowthRates {
