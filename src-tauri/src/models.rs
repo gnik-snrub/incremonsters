@@ -13,7 +13,27 @@ pub struct Monster {
     pub spd: i32,
     pub exp: i32,
     pub lvl: i32,
-    pub traits: Vec<Trait>
+    pub traits: Vec<Trait>,
+    pub temporary_modifiers: Vec<TemporaryModifier>,
+}
+
+enum ModMode {
+  Additive,
+  Multiplicative,
+}
+
+enum ModType {
+  HP,
+  ATK,
+  DEF,
+  SPD,
+}
+
+pub struct TemporaryModifier {
+    source: String,
+    mod_type: ModType,
+    mod_mode: ModMode,
+    mod_value: i32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]

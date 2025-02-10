@@ -8,6 +8,26 @@ export type Monster = {
   spd: number,
   exp: number,
   lvl: number,
+  temporaryModifiers: TemporaryModifier[],
+}
+
+type TemporaryModifier = {
+  source: String, // for example, shop item or trait modifier
+  modType: ModType,
+  modMode: ModMode,
+  modValue: number,
+}
+
+enum ModMode {
+  Additive,
+  Multiplicative,
+}
+
+enum ModType {
+  HP,
+  ATK,
+  DEF,
+  SPD,
 }
 
 export function isMonster(obj: any): obj is Monster {
