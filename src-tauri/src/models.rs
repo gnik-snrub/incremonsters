@@ -87,7 +87,8 @@ impl Monster {
             spd,
             exp: 0,
             lvl: 1,
-            traits: Vec::new()
+            traits: Vec::new(),
+            temporary_modifiers: Vec::new(),
         }
     }
 
