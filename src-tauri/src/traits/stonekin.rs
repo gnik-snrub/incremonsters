@@ -1,3 +1,5 @@
+use crate::math::battle::damage_calculation;
+
 #[derive(Clone, Copy)]
 pub enum StonekinTrait {
     Slateblade,
@@ -42,7 +44,12 @@ impl MonsterTrait for StonekinTrait {
                 }
             }
             StonekinTrait::Mountainheart => {
-
+                Trait {
+                    name: "Titanic Retaliation".to_string(),
+                    description: "When hit, lets out a seismic shock, dealing damage to all who oppose it based on its defense (50%)".to_string(),
+                    trigger: Trigger::OnHit,
+                    callback: titanic_retaliation
+                }
             }
         }
     }
@@ -88,6 +95,7 @@ fn quaking_dodge(
 
     (None, None, None, Some(unwrapped_enemies), Some(unwrapped_damage))
 }
+
 fn shared_earth_armor(
     self_value: Option<Monster>,
     opponent: Option<Monster>,
@@ -104,4 +112,23 @@ fn shared_earth_armor(
     }
 
     (None, None, Some(unwrapped_allies), None, None)
+}
+
+fn titanic_retaliation(
+    self_value: Option<Monster>,
+    opponent: Option<Monster>,
+    allies: Option<Vec<Monster>>,
+    enemies: Option<Vec<Monster>>,
+    damage: Option<i32>
+) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
+    let unwrapped_self = self_value.unwrap();
+    let unwrapped_enemies = enemies.unwrap();
+
+    let retaliation_damage = unwrapped_self.def * 0.5;
+
+    for enemy in unwrapped_enemies {
+        enemy.current_hp = std::cmp::max(enemy.current_hp - calculate_damage(retaliation_damage, enemy.def), 0) as i32;
+    }
+
+    (None, None, None, Some(unwrapped_enemies), None)
 }
