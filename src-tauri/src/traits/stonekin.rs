@@ -34,7 +34,12 @@ impl MonsterTrait for StonekinTrait {
                 }
             }
             StonekinTrait::Bolderfist => {
-
+                Trait {
+                    name: "Shared Earth Armor".to_string(),
+                    description: "On hit, offers shards of carapace to allies, adding its own defense (20%) to that of allies.".to_string(),
+                    trigger: Trigger::OnHit,
+                    callback: shared_earth_armor
+                }
             }
             StonekinTrait::Mountainheart => {
 
@@ -82,4 +87,21 @@ fn quaking_dodge(
     }
 
     (None, None, None, Some(unwrapped_enemies), Some(unwrapped_damage))
+}
+fn shared_earth_armor(
+    self_value: Option<Monster>,
+    opponent: Option<Monster>,
+    allies: Option<Vec<Monster>>,
+    enemies: Option<Vec<Monster>>,
+    damage: Option<i32>
+) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
+    let unwrapped_self = self_value.unwrap();
+    let unwrapped_allies = allies.unwrap();
+
+    let def_bonus = unwrapped_self.def * 0.2;
+    for ally in unwrapped_allies {
+        ally.def += def_bonus;
+    }
+
+    (None, None, Some(unwrapped_allies), None, None)
 }
