@@ -2,7 +2,7 @@ use crate::models::Monster;
 use crate::monsters::GrowthRates;
 
 pub fn new() -> Monster {
-    Monster::new("skeleton", 80, 11, 9, 15)
+    Monster::new("Test", "skeleton", 80, 11, 9, 15)
 }
 
 pub const SKELETON_GROWTH_RATE: GrowthRates = GrowthRates {

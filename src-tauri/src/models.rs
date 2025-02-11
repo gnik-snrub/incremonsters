@@ -1,3 +1,5 @@
+use std::fmt::format;
+
 // src/models.rs
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -5,6 +7,8 @@ use uuid::Uuid;
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
 pub struct Monster {
     pub id: String,
+    pub creature_family: String,
+    pub creature_type: String,
     pub name: String,
     pub hp: i32,
     pub current_hp: i32,
@@ -17,11 +21,13 @@ pub struct Monster {
     pub temporary_modifiers: Vec<TemporaryModifier>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
 enum ModMode {
   Additive,
   Multiplicative,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
 enum ModType {
   HP,
   ATK,
@@ -29,6 +35,7 @@ enum ModType {
   SPD,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
 pub struct TemporaryModifier {
     source: String,
     mod_type: ModType,
@@ -67,10 +74,12 @@ pub struct Trait {
 }
 
 impl Monster {
-    pub fn new(name: &str, hp: i32, atk: i32, def: i32, spd: i32) -> Self {
+    pub fn new(creature_family: &str, creature_type: &str, hp: i32, atk: i32, def: i32, spd: i32) -> Self {
         Monster {
             id: Uuid::new_v4().to_string(),
-            name: name.to_string(),
+            creature_family: creature_family.to_string(),
+            creature_type: creature_type.to_string(),
+            name: format!("{} {}", creature_family, creature_type),
             hp,
             current_hp: hp,
             atk,

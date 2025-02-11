@@ -17,10 +17,10 @@ pub enum StonekinType {
 impl MonsterType for StonekinType {
     fn generate(&self) -> Monster {
         match self {
-            StonekinType::Slateblade => Monster::new("Slateblade", 100, 17, 15, 18),
-            StonekinType::Pebblebound => Monster::new("Pebblebound", 100, 12, 18, 20),
-            StonekinType::Bolderfist => Monster::new("Bolderfist", 100, 15, 25, 10),
-            StonekinType::Mountainheart => Monster::new("Mountainheart", 110, 20, 20, 8),
+            StonekinType::Slateblade => Monster::new("Stonekin", "Slateblade", 100, 17, 15, 18),
+            StonekinType::Pebblebound => Monster::new("Stonekin", "Pebblebound", 100, 12, 18, 20),
+            StonekinType::Bolderfist => Monster::new("Stonekin", "Bolderfist", 100, 15, 25, 10),
+            StonekinType::Mountainheart => Monster::new("Stonekin", "Mountainheart", 110, 20, 20, 8),
         }
     }
     fn random() -> Self {
