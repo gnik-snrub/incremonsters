@@ -99,20 +99,34 @@ impl Monster {
     pub fn trigger_traits(
         &self,
         trigger: Trigger,
+        opponent: &Option<Monster>,
         allies: Option<Vec<Monster>>,
         enemies: Option<Vec<Monster>>,
-    ) -> (Option<Vec<Monster>>, Option<Vec<Monster>>) {
+        damage: Option<i32>,
+    ) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
+        let mut current_self = Some(self.clone());
+        let mut current_opponent = opponent.clone();
         let mut current_allies = allies;
         let mut current_enemies = enemies;
+        let mut current_damage = damage;
 
-        for trait_ in &self.traits {
+        for trait_ in self.clone().traits {
             if trait_.trigger == trigger {
-                let (new_allies, new_enemies) = (trait_.callback)(current_allies, current_enemies);
+                let (new_self,
+                    new_opponent,
+                    new_allies,
+                    new_enemies,
+                    new_damage
+                    ) = (trait_.callback)(Some(self.clone()), opponent.clone(), current_allies, current_enemies, current_damage);
+
+                current_self = new_self;
+                current_opponent = new_opponent;
                 current_allies = new_allies;
                 current_enemies = new_enemies;
+                current_damage = new_damage;
             }
         }
 
-        (current_allies, current_enemies)
+        (current_self, current_opponent, current_allies, current_enemies, current_damage)
     }
 }
