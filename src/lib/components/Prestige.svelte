@@ -60,8 +60,8 @@
   }
 
   function buyItem(item: StoreItem) {
-    if (gold.get() >= item.nextCost()) {
-      gold.subtract(item.nextCost())
+    if (arcaneShards.get() >= item.nextCost()) {
+      arcaneShards.subtract(item.nextCost())
       item.buy()
     }
   }
