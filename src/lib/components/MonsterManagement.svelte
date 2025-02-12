@@ -62,7 +62,8 @@
     <div class="w-full grid grid-cols-4 place-items-center">
     {#each playerSquad.getMonsters() as monster, idx}
       <div ondrop={handleDrop} ondragover={handleDragOver} data-idx={idx} class="w-full h-full border-4 rounded-full border-amber-800 bg-amber-400 grid place-items-center max-w-24 max-h-24">
-        <h3 class="select-none">{monster.name}</h3>
+        <h3 class="select-none">{monster.creature_family}</h3>
+        <h3 class="select-none">{monster.creature_type}</h3>
       </div>
     {/each}
     </div>
@@ -79,6 +80,11 @@
     <p>ATK: {selectedMonster.atk}</p>
     <p>DEF: {selectedMonster.def}</p>
     <p>SPD: {selectedMonster.spd}</p>
+    <h4>Traits</h4>
+    {#each selectedMonster.traits as trait}
+      <p>{trait.name}</p>
+      <p>{trait.description}</p>
+    {/each}
   </section>
   <button class="w-full pt-4 mt-auto border-t-2 border-black col-span-2" onclick={() => selectMonster(null)}>Close</button>
 </section>
