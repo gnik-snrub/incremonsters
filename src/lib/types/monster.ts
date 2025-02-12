@@ -8,7 +8,13 @@ export type Monster = {
   spd: number,
   exp: number,
   lvl: number,
+  traits: Trait[],
   temporaryModifiers: TemporaryModifier[],
+}
+
+type Trait = {
+  name: String,
+  description: String,
 }
 
 type TemporaryModifier = {
