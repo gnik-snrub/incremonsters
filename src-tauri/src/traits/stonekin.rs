@@ -1,3 +1,4 @@
+use super::Trait;
 use crate::math::battle::damage_calculation;
 
 #[derive(Clone, Copy)]
@@ -8,14 +9,6 @@ pub enum StonekinTrait {
     Mountainheart,
 }
 
-pub struct Trait {
-    name: String,
-    description: String,
-    trigger: Trigger,
-    #[serde(skip)]
-    #[serde(default = "default_callback")]
-    callback: CallbackFn,
-}
 impl MonsterTrait for StonekinTrait {
     fn get(&self) -> Trait {
         match self {
