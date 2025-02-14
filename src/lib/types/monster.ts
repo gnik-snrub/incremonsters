@@ -1,3 +1,5 @@
+import { type BattleModifier } from './modifiers'
+
 export type Monster = {
   id: String
   name: String,
@@ -9,31 +11,12 @@ export type Monster = {
   exp: number,
   lvl: number,
   traits: Trait[],
-  temporaryModifiers: TemporaryModifier[],
+  battleModifiers: BattleModifier[],
 }
 
 type Trait = {
   name: String,
   description: String,
-}
-
-type TemporaryModifier = {
-  source: String, // for example, shop item or trait modifier
-  modType: ModType,
-  modMode: ModMode,
-  modValue: number,
-}
-
-enum ModMode {
-  Additive,
-  Multiplicative,
-}
-
-enum ModType {
-  HP,
-  ATK,
-  DEF,
-  SPD,
 }
 
 export function isMonster(obj: any): obj is Monster {
