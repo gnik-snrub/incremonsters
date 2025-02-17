@@ -1,11 +1,12 @@
 use crate::models::Monster;
+use serde::{Deserialize, Serialize};
 use rand::seq::SliceRandom;
 use rand::{random};
 
-fn get_speed_order(player: &Vec<Monster>, enemy: &Vec<Monster>) -> Vec<(i32, String, usize)> {
+fn get_speed_order(player: &Vec<Monster>, enemy: &Vec<Monster>, player_speed_mod: f32) -> Vec<(i32, String, usize)> {
     let mut combined: Vec<(i32, String, usize)> = Vec::new();
     for (i, monster) in player.iter().enumerate() {
-        combined.push((monster.spd, "player".to_string(), i));
+        combined.push(((monster.spd as f32 * player_speed_mod) as i32, "player".to_string(), i));
     }
     for (i, monster) in enemy.iter().enumerate() {
         combined.push((monster.spd, "enemy".to_string(), i));
@@ -41,23 +42,77 @@ pub fn damage_calculation(atk: i32, def: i32) -> i32 {
     if atk <= 0 {
         return 0;
     }
+
+    let f32_atk: f32 = atk as f32;
+    let f32_def: f32 = def as f32;
+
     let divisor: f32 = if def <= 0 {
-        atk as f32
+        f32_atk
     } else {
-        (atk + def) as f32
+        f32_atk + f32_def
     };
-    let calculated: f32 = (atk as f32) * (atk as f32 / divisor);
-    calculated.round() as i32
+    let calculated: f32 = f32_atk * (f32_atk / divisor);
+    calculated.ceil() as i32
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct GlobalModifier {
+    sourceId: String,
+    name: String,
+    description: String,
+    modType: ModType,
+    modValue: f32,
+}
+
+#[derive(Serialize, Deserialize)]
+pub enum ModType {
+  MULT,
+  ADD,
+  SUB,
+  DIV,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct GlobalModifiers {
+    atk: Vec<GlobalModifier>,
+    def: Vec<GlobalModifier>,
+    spd: Vec<GlobalModifier>,
+    hp: Vec<GlobalModifier>,
+}
+
+fn calculate_modifier(mods: Vec<GlobalModifier>) -> f32 {
+    let mut mod_total: f32 = 1.0;
+    for m in mods {
+        match m.modType {
+            ModType::ADD => {
+                mod_total += m.modValue;
+            },
+            ModType::SUB => {
+                mod_total -= m.modValue;
+            },
+            ModType::DIV => {
+                mod_total /= m.modValue;
+            },
+            ModType::MULT => {
+                mod_total *= m.modValue;
+            },
+        }
+    }
+    mod_total
 }
 
 #[tauri::command]
-pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>) -> [Vec<Monster>; 2] {
-    let ordered: Vec<(i32, String, usize)> = get_speed_order(&player, &enemy);
+pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifiers: GlobalModifiers) -> [Vec<Monster>; 2] {
+    let attack_mod = calculate_modifier(global_modifiers.atk);
+    let defense_mod = calculate_modifier(global_modifiers.def);
+    let speed_mod = calculate_modifier(global_modifiers.spd);
+    let hp_mod = calculate_modifier(global_modifiers.hp);
+    let ordered: Vec<(i32, String, usize)> = get_speed_order(&player, &enemy, speed_mod);
     for (_, side, index) in ordered {
         if side == "player" {
             match get_target(&enemy) {
                 Some(target_idx) => {
-                    let damage: i32 = damage_calculation(player[index].atk, enemy[target_idx].def);
+                    let damage: i32 = damage_calculation((player[index].atk as f32 * attack_mod) as i32, enemy[target_idx].def);
                     enemy[target_idx].current_hp =
                         std::cmp::max(enemy[target_idx].current_hp - damage, 0) as i32;
                 }
@@ -66,9 +121,9 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>) -> [Vec<Monster
         } else {
             match get_target(&player) {
                 Some(target_idx) => {
-                    let damage: i32 = damage_calculation(enemy[index].atk, player[target_idx].def);
+                    let damage: i32 = damage_calculation(enemy[index].atk, (player[target_idx].def as f32 * defense_mod) as i32);
                     player[target_idx].current_hp =
-                        std::cmp::max(player[target_idx].current_hp - damage, 0) as i32;
+                        std::cmp::max((player[target_idx].current_hp as f32 * hp_mod) as i32 - damage, 0) as i32;
                 }
                 None => continue,
             }
