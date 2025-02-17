@@ -5,7 +5,7 @@ use std::fs;
 use models::Monster;
 mod monsters;
 use monsters::level_up;
-use monsters::*;
+use monsters::{MonsterFamily, generate_monster};
 mod math;
 use math::battle::battle;
 use math::rewards::{win_battle_rewards, GrowthBoosts};
@@ -14,9 +14,7 @@ use rand::Rng;
 
 #[tauri::command]
 fn create_monster(lvl: i32) -> Monster {
-    let monster_options: [fn() -> Monster; 3] = [skeleton::new, ogre::new, zombie::new];
-    let mut rng = rand::thread_rng();
-    let mut monster = monster_options[rng.gen_range(0..monster_options.len())]();
+    let mut monster = generate_monster(MonsterFamily::Stonekin(None));
     for _ in 1..lvl {
         level_up(&mut monster, &GrowthBoosts(vec![], vec![], vec![], vec![]));
     }
