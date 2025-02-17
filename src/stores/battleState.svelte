@@ -1,5 +1,6 @@
 <script lang="ts" module>
   import { playerSquad, enemySquad } from "./monsters.svelte";
+  import { globalModifiers } from "./modifiers.svelte";
   import { invoke } from "@tauri-apps/api/core";
   import { type Monster } from "../lib/types/monster";
 
@@ -63,7 +64,7 @@
     }
 
     function invokeBattle(): void {
-      invoke("battle", { player: playerSquad.getMonsters(), enemy: enemySquad.getMonsters() })
+      invoke("battle", { player: playerSquad.getMonsters(), enemy: enemySquad.getMonsters(), globalModifiers: globalModifiers() })
         .then((res) => {
           const newPlayer: Monster[] = res[0]
           const newEnemy: Monster[] = res[1]
