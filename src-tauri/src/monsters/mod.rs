@@ -1,6 +1,6 @@
 use ogre::OGRE_GROWTH_RATE;
 use skeleton::SKELETON_GROWTH_RATE;
-use stonekin::StonekinType;
+use stonekin::{ StonekinType, PEBBLEBOUND_GROWTH_RATE, SLATEBLADE_GROWTH_RATE, BOLDERFIST_GROWTH_RATE, MOUNTAINHEART_GROWTH_RATE};
 use zombie::ZOMBIE_GROWTH_RATE;
 
 use crate::{math::rewards::{GrowthBoosts, GrowthModifier}, models::Monster};
@@ -19,6 +19,7 @@ pub trait MonsterType {
     fn random() -> Self;
 }
 
+#[derive(Debug)]
 pub struct GrowthRates {
     pub hp: f32,
     pub atk: f32,
@@ -27,10 +28,10 @@ pub struct GrowthRates {
 }
 
 const MISSING_GROWTH_RATE: GrowthRates = GrowthRates {
-    hp: 0.0,
-    atk: 0.0,
-    def: 0.0,
-    spd: 0.0,
+    hp: 1.0,
+    atk: 1.0,
+    def: 1.0,
+    spd: 1.0,
 };
 
 pub fn level_up(monster: &mut Monster, modifiers: &GrowthBoosts) {
@@ -59,15 +60,17 @@ fn get_new_stat(original_stat: i32, growth_rate: f32, modifiers: &Vec<GrowthModi
 }
 
 fn find_growth_rate(monster: Monster) -> GrowthRates {
-    match monster.name.as_str() {
-        "skeleton" => SKELETON_GROWTH_RATE,
-        "ogre" => OGRE_GROWTH_RATE,
-        "zombie" => ZOMBIE_GROWTH_RATE,
+    let rate = match monster.creature_type.as_str() {
+        "Pebblebound" => stonekin::PEBBLEBOUND_GROWTH_RATE,
+        "Slateblade" => stonekin::SLATEBLADE_GROWTH_RATE,
+        "Bolderfist" => stonekin::BOLDERFIST_GROWTH_RATE,
+        "Mountainheart" => stonekin::MOUNTAINHEART_GROWTH_RATE,
         _ => MISSING_GROWTH_RATE,
-    }
+    };
+    rate
 }
 
-fn generate_monster(family: MonsterFamily) -> Monster {
+pub fn generate_monster(family: MonsterFamily) -> Monster {
     match family {
         MonsterFamily::Stonekin(None) => StonekinType::random().generate(),
         MonsterFamily::Stonekin(Some(monster)) => monster.generate(),

@@ -6,7 +6,7 @@ use crate::monsters::GrowthRates;
 
 use super::MonsterType;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum StonekinType {
     Slateblade,
     Pebblebound,
