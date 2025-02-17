@@ -3,7 +3,8 @@
 
   import { type Monster, isMonster } from "$lib/types/monster"
   import { type MonsterGroup, type EnemyMonsterGroup, type PlayerMonsterGroup } from "$lib/types/monstergroup"
-  import { monsterBoosts } from "./shop.svelte"
+  import { globalModifiers } from "./modifiers.svelte"
+  import { ModType } from "$lib/types/modifiers";
 
   export const stable: MonsterGroup = monsterGroup()
   export const playerSquad: PlayerMonsterGroup = playerMonsters()
@@ -90,15 +91,93 @@
     }
 
     let applyUpgrades = $derived.by(() => {
-      const [atkBoost, defBoost, spdBoost, hpBoost] = monsterBoosts
-      return getMonsters().map((monster: Monster) => {
-        return {
-          ...monster,
-          atk: Math.floor(monster.atk * ((atkBoost.amountBought() * atkBoost.effectMagnitude) + 1)),
-          def: Math.floor(monster.def * ((defBoost.amountBought() * defBoost.effectMagnitude) + 1)),
-          spd: Math.floor(monster.spd * ((spdBoost.amountBought() * spdBoost.effectMagnitude) + 1)),
-          hp: Math.floor(monster.hp * ((hpBoost.amountBought() * hpBoost.effectMagnitude) + 1)),
+      return playerSquad.getMonsters().map((monster: Monster) => {
+        let returnMonster = { ...monster }
+        let atkMod = 1
+        for (let modifier of globalModifiers().atk) {
+          switch (modifier.modType) {
+            case ModType.ADD:
+              atkMod += modifier.modValue
+              break
+            case ModType.MULT:
+              atkMod *= modifier.modValue
+              break
+            case ModType.SUB:
+              atkMod -= modifier.modValue
+              break
+            case ModType.DIV:
+              atkMod /= modifier.modValue
+              break
+            default:
+              break
+          }
         }
+        returnMonster.atk = Math.round(monster.atk * atkMod)
+
+        let defMod = 1
+        for (let modifier of globalModifiers().def) {
+          switch (modifier.modType) {
+            case ModType.ADD:
+              defMod += modifier.modValue
+              break
+            case ModType.MULT:
+              defMod *= modifier.modValue
+              break
+            case ModType.SUB:
+              defMod -= modifier.modValue
+              break
+            case ModType.DIV:
+              defMod /= modifier.modValue
+              break
+            default:
+              break
+          }
+        }
+        returnMonster.def = Math.round(monster.def * defMod)
+
+        let spdMod = 1
+        for (let modifier of globalModifiers().spd) {
+          switch (modifier.modType) {
+            case ModType.ADD:
+              spdMod += modifier.modValue
+              break
+            case ModType.MULT:
+              spdMod *= modifier.modValue
+              break
+            case ModType.SUB:
+              spdMod -= modifier.modValue
+              break
+            case ModType.DIV:
+              spdMod /= modifier.modValue
+              break
+            default:
+              break
+          }
+        }
+        returnMonster.spd = Math.round(monster.spd * spdMod)
+
+        let hpMod = 1
+        for (let modifier of globalModifiers().hp) {
+          switch (modifier.modType) {
+            case ModType.ADD:
+              hpMod += modifier.modValue
+              break
+            case ModType.MULT:
+              hpMod *= modifier.modValue
+              break
+            case ModType.SUB:
+              hpMod -= modifier.modValue
+              break
+            case ModType.DIV:
+              hpMod /= modifier.modValue
+              break
+            default:
+              break
+          }
+        }
+        returnMonster.hp = Math.round(monster.hp * hpMod)
+
+        return returnMonster
       })
     })
 
