@@ -112,7 +112,7 @@
         <div class="border-black">
           <h3>{monster.name}</h3>
           <p>Level: {monster.lvl}</p>
-          <p>HP: {monster.current_hp}/{monster.hp}</p>
+          <p>HP: {monster.hp - monster.damage}/{monster.hp}</p>
           <p>ATK: {monster.atk}</p>
           <p>DEF: {monster.def}</p>
           <p>SPD: {monster.spd}</p>
@@ -120,12 +120,12 @@
       {/each}
     </div>
     <div class="flex flex-row self-center w-3/5 pt-8 mt-8 border-t-4 border-black justify-evenly gap-4">
-      {#each playerSquad.upgradedMonsters() as monster }
+      {#each playerSquad.upgradedMonsters() as monster, index }
         <div>
           <h3>{monster.name}</h3>
           <p>Level: {monster.lvl}</p>
           <p>EXP: {monster.exp}</p>
-          <p>HP: {monster.current_hp}/{monster.hp}</p>
+          <p>HP: {playerSquad.upgradedMonsters()[index].hp - monster.damage}/{monster.hp}</p>
           <p>ATK: {monster.atk}</p>
           <p>DEF: {monster.def}</p>
           <p>SPD: {monster.spd}</p>

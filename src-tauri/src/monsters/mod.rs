@@ -41,7 +41,6 @@ pub fn level_up(monster: &mut Monster, modifiers: &GrowthBoosts) {
     monster.atk = get_new_stat(monster.atk, growth_rates.atk, &modifiers.1);
     monster.def = get_new_stat(monster.def, growth_rates.def, &modifiers.2);
     monster.spd = get_new_stat(monster.spd, growth_rates.spd, &modifiers.3);
-    monster.current_hp = monster.hp;
 }
 
 fn get_new_stat(original_stat: i32, growth_rate: f32, modifiers: &Vec<GrowthModifier>) -> i32 {

@@ -14,7 +14,7 @@ export type BattleModifier = {
 }
 
 export enum ModTarget {
-  HP = 'current_hp',
+  HP = 'hp',
   ATK = 'atk',
   DEF = 'def',
   SPD = 'spd',

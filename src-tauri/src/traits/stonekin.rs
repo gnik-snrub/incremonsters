@@ -120,7 +120,7 @@ fn titanic_retaliation(
     let retaliation_damage = unwrapped_self.def * 0.5;
 
     for enemy in unwrapped_enemies {
-        enemy.current_hp = std::cmp::max(enemy.current_hp - calculate_damage(retaliation_damage, enemy.def), 0) as i32;
+        enemy.damage += calculate_damage(retaliation_damage, enemy.def);
     }
 
     (None, None, None, Some(unwrapped_enemies), None)

@@ -113,8 +113,7 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
             match get_target(&enemy) {
                 Some(target_idx) => {
                     let damage: i32 = damage_calculation((player[index].atk as f32 * attack_mod) as i32, enemy[target_idx].def);
-                    enemy[target_idx].current_hp =
-                        std::cmp::max(enemy[target_idx].current_hp - damage, 0) as i32;
+                    enemy[target_idx].damage += damage;
                 }
                 None => continue,
             }
@@ -122,8 +121,7 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
             match get_target(&player) {
                 Some(target_idx) => {
                     let damage: i32 = damage_calculation(enemy[index].atk, (player[target_idx].def as f32 * defense_mod) as i32);
-                    player[target_idx].current_hp =
-                        std::cmp::max((player[target_idx].current_hp as f32 * hp_mod) as i32 - damage, 0) as i32;
+                    player[target_idx].damage += damage
                 }
                 None => continue,
             }

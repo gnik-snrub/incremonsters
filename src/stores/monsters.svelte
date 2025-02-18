@@ -16,7 +16,7 @@
     let allDead: boolean = $derived.by(() => {
       let total = 0
       for (const monster of monsters) {
-        total += monster.current_hp
+        total += monster.hp - monster.damage
       }
       let returnValue = total <= 0 ? true : false
       return returnValue
@@ -73,21 +73,30 @@
   }
 
   export function playerMonsters(): PlayerMonsterGroup {
-    let { getMonsters, setMonsters, totalStats, getMonster, setMonster, getAllDead, reset } = monsterGroup()
+    let { getMonsters, setMonsters, totalStats, getMonster, setMonster, reset } = monsterGroup()
 
     function heal(healRate: number): void {
       const healed = getMonsters().map((monster, index) => {
         const heals = Math.ceil(upgradedMonsters()[index].hp * (healRate / 100))
-        return heals + monster.current_hp > upgradedMonsters()[index].hp
-          ? {
-            ...monster,
-            current_hp: upgradedMonsters()[index].hp
-          } : {
-            ...monster,
-            current_hp: monster.current_hp + heals
-          }
+        return {
+          ...monster,
+          damage: monster.damage - heals,
+        }
       })
       setMonsters(healed)
+    }
+
+    let allDead: boolean = $derived.by(() => {
+      let total = 0
+      for (const monster of upgradedMonsters()) {
+        total += monster.hp - monster.damage
+      }
+      let returnValue = total <= 0 ? true : false
+      return returnValue
+    })
+
+    function getAllDead(): boolean {
+      return allDead
     }
 
     let applyUpgrades = $derived.by(() => {

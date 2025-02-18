@@ -4,7 +4,7 @@ export type Monster = {
   id: String
   name: String,
   hp: number,
-  current_hp: number,
+  damage: number,
   atk: number,
   def: number,
   spd: number,
@@ -24,7 +24,7 @@ export function isMonster(obj: any): obj is Monster {
     typeof obj.id === 'string' &&
     typeof obj.name === 'string' &&
     typeof obj.hp === 'number' &&
-    typeof obj.current_hp === 'number' &&
+    typeof obj.damage === 'number' &&
     typeof obj.atk === 'number' &&
     typeof obj.def === 'number' &&
     typeof obj.spd === 'number' &&
