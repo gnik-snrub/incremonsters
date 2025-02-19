@@ -122,6 +122,9 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
                 Some(target_idx) => {
                     let damage: i32 = damage_calculation((player[index].atk as f32 * attack_mod) as i32, enemy[target_idx].def);
                     enemy[target_idx].damage += damage;
+                    if enemy[target_idx].damage > enemy[target_idx].hp {
+                        enemy[target_idx].damage = enemy[target_idx].hp;
+                    }
                 }
                 None => continue,
             }
@@ -129,7 +132,10 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
             match get_target(&player, hp_mod) {
                 Some(target_idx) => {
                     let damage: i32 = damage_calculation(enemy[index].atk, (player[target_idx].def as f32 * defense_mod) as i32);
-                    player[target_idx].damage += damage
+                    player[target_idx].damage += damage;
+                    if player[target_idx].damage as f32 > player[target_idx].hp as f32 * hp_mod {
+                        player[target_idx].damage = player[target_idx].hp;
+                    }
                 }
                 None => continue,
             }
