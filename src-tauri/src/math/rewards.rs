@@ -14,11 +14,11 @@ fn get_rewards(dungeon_lvl: i32, slain: &Vec<Monster>, gold_boosts: Vec<RewardMo
             (REWARD_BASE * REWARD_GROWTH.powf(monster.lvl as f32)) * variance * dungeon_lvl as f32;
     }
     for boost in gold_boosts.iter() {
-        let mut modifier = 0.0;
+        let mut modifier = 1.0;
         if boost.operation == "add" {
-            modifier = 1.0 + (boost.magnitude * boost.quantity as f32);
+            modifier = (1.0 + (boost.magnitude * boost.quantity as f32)).max(1.0);
         } else if boost.operation == "mult" {
-            modifier = (1.0 + boost.magnitude).powf(boost.quantity as f32);
+            modifier = ((1.0 + boost.magnitude).powf(boost.quantity as f32)).max(1.0);
         }
         reward_total *= modifier;
     }

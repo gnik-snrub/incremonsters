@@ -10,8 +10,8 @@
 
   export const monsterBoosts: PrestigeBoostEffect[] = [atkBoost, defBoost, spdBoost, hpBoost]
 
-  export const expBoost: PrestigeBoostEffect = $state(prestigeBoostEffect("Tome of Knowledge", 10, 1.25, "Raises player monster EXP by 5% (multiplicative)", "exp", 0.05, 'base', 'mult'))
-  export const goldBoost: PrestigeBoostEffect = $state(prestigeBoostEffect("Alchemist's Coin", 10, 1.25, "Gold gain increase by 5% (multiplicative)", "gold", 0.05, 'base', 'mult'))
+  export const expBoost: PrestigeBoostEffect = $state(prestigeBoostEffect("Tome of Knowledge", 10, 1.25, "Raises player monster EXP by 5% (multiplicative)", "exp", 0.05, 'mult', 'base'))
+  export const goldBoost: PrestigeBoostEffect = $state(prestigeBoostEffect("Alchemist's Coin", 10, 1.25, "Gold gain increase by 5% (multiplicative)", "gold", 0.05, 'mult', 'base'))
 
   export const rewardBoosts: PrestigeBoostEffect[] = [expBoost, goldBoost]
 
