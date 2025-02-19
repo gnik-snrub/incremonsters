@@ -26,16 +26,24 @@ fn get_speed_order(player: &Vec<Monster>, enemy: &Vec<Monster>, player_speed_mod
     combined
 }
 
-fn get_target(monsters: &Vec<Monster>) -> Option<usize> {
+fn get_target(monsters: &Vec<Monster>, hp_mod: f32) -> Option<usize> {
     let mut rng = rand::thread_rng();
-    let alive: Vec<&Monster> = monsters.iter().filter(|m| m.hp > 0).collect();
-    let mut target_list: Vec<usize> = (0..alive.len()).collect();
-    target_list.shuffle(&mut rng);
+    let mut alive: Vec<usize> = monsters
+        .iter()
+        .enumerate()
+        .filter_map(|(idx, m)| {
+            if m.damage < m.hp {
+                Some(idx)
+            } else {
+                None
+            }
+        }).collect::<Vec<_>>();
 
-    for &i in target_list.iter() {
-        return Some(i);
+    alive.shuffle(&mut rng);
+    if alive.is_empty() {
+        return None;
     }
-    None
+    return Some(alive[0]);
 }
 
 pub fn damage_calculation(atk: i32, def: i32) -> i32 {
@@ -110,7 +118,7 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
     let ordered: Vec<(i32, String, usize)> = get_speed_order(&player, &enemy, speed_mod);
     for (_, side, index) in ordered {
         if side == "player" {
-            match get_target(&enemy) {
+            match get_target(&enemy, 1.0) {
                 Some(target_idx) => {
                     let damage: i32 = damage_calculation((player[index].atk as f32 * attack_mod) as i32, enemy[target_idx].def);
                     enemy[target_idx].damage += damage;
@@ -118,7 +126,7 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
                 None => continue,
             }
         } else {
-            match get_target(&player) {
+            match get_target(&player, hp_mod) {
                 Some(target_idx) => {
                     let damage: i32 = damage_calculation(enemy[index].atk, (player[target_idx].def as f32 * defense_mod) as i32);
                     player[target_idx].damage += damage
