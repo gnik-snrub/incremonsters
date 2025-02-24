@@ -1,7 +1,7 @@
 <script lang="ts" module>
   import { playerSquad } from "./monsters.svelte"
 
-  import { type IntermissionEffect, type BoostEffect } from "$lib/types/shop"
+  import { type IntermissionEffect, type BoostEffect, type Equipment } from "$lib/types/shop"
   import { intermissionEffect, boostEffect } from "$entities/shop"
 
   export const atkBoost: BoostEffect = $state(boostEffect("Spinach", 10, 1.25, "Raises player monster attack by 10% (additive)", "atk", 0.1))
@@ -22,6 +22,14 @@
   }
 
   export const intermissionEffects: IntermissionEffect[] = [bandages]
+
+  let purchasedEquipment: Equipment[] = $state([])
+  export function setPurchasedEquipment(equipment: Equipment[]) {
+    purchasedEquipment = equipment
+  }
+  export function getPurchasedEquipment(): Equipment[] {
+    return purchasedEquipment
+  }
 
   export const allShopItems = [atkBoost, defBoost, spdBoost, hpBoost, expBoost, goldBoost, bandages]
 </script>
