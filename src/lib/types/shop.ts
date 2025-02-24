@@ -28,3 +28,17 @@ export type PrestigeBoostEffect = BoostEffect & {
   mode: string, // Base vs growth
   operation: string, // Add vs mult
 }
+
+export type Equipment = {
+  name: string,
+  level: number,
+  type: EquipmentType,
+  value: number,
+}
+
+export enum EquipmentType {
+  AMULET = 'Amulet',
+  WEAPON = 'Weapon',
+  ARMOR = 'Armor',
+  BOOTS = 'Boots',
+}
