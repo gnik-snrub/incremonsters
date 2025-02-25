@@ -21,9 +21,12 @@
       case EquipmentType.BOOTS:
         name = "Boots"
         break
+      case EquipmentType.EMPTY:
+        name = "Empty"
+        break
     }
 
-    const value = calculateScaling(level, 10, 1.05)
+    const value = name === 'Empty' ? 0 : calculateScaling(level, 10, 1.05)
 
     return { name, level, type, value }
   }

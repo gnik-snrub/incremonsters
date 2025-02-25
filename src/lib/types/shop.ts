@@ -41,4 +41,5 @@ export enum EquipmentType {
   WEAPON = 'Weapon',
   ARMOR = 'Armor',
   BOOTS = 'Boots',
+  EMPTY = 'Empty',
 }
