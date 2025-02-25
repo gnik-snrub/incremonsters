@@ -5,6 +5,8 @@
   import { type MonsterGroup, type EnemyMonsterGroup, type PlayerMonsterGroup } from "$lib/types/monstergroup"
   import { globalModifiers } from "./modifiers.svelte"
   import { ModType } from "$lib/types/modifiers";
+  import { equipment } from "$lib/entities/shop/equipment.svelte";
+  import { EquipmentType, type Equipment } from "$lib/types/shop";
 
   export const stable: MonsterGroup = monsterGroup()
   export const playerSquad: PlayerMonsterGroup = playerMonsters()
@@ -75,6 +77,13 @@
   export function playerMonsters(): PlayerMonsterGroup {
     let { getMonsters, setMonsters, totalStats, getMonster, setMonster, reset } = monsterGroup()
 
+    let equipments: Equipment[] = $state([equipment(0, 'Empty'), equipment(0, 'Empty'), equipment(0, 'Empty'), equipment(0, 'Empty')])
+    export function setEquipment(equipment: Equipment, index: number): void {
+      const newEquipments = [...equipments]
+      newEquipments[index] = equipment
+      equipments = [...newEquipments]
+    }
+
     function heal(healRate: number): void {
       const healed = getMonsters().map((monster, index) => {
         const heals = Math.ceil(upgradedMonsters()[index].hp * (healRate / 100))
@@ -100,7 +109,7 @@
     }
 
     let applyUpgrades = $derived.by(() => {
-      return playerSquad.getMonsters().map((monster: Monster) => {
+      return playerSquad.getMonsters().map((monster: Monster, index: number) => {
         let returnMonster = { ...monster }
         let atkMod = 1
         for (let modifier of globalModifiers().atk) {
@@ -122,6 +131,9 @@
           }
         }
         returnMonster.atk = Math.round(monster.atk * atkMod)
+        if (equipments[index].type === EquipmentType.WEAPON) {
+          returnMonster.atk += equipments[index].value
+        }
 
         let defMod = 1
         for (let modifier of globalModifiers().def) {
@@ -143,6 +155,9 @@
           }
         }
         returnMonster.def = Math.round(monster.def * defMod)
+        if (equipments[index].type === EquipmentType.ARMOR) {
+          returnMonster.atk += equipments[index].value
+        }
 
         let spdMod = 1
         for (let modifier of globalModifiers().spd) {
@@ -164,6 +179,9 @@
           }
         }
         returnMonster.spd = Math.round(monster.spd * spdMod)
+        if (equipments[index].type === EquipmentType.BOOTS) {
+          returnMonster.spd += equipments[index].value
+        }
 
         let hpMod = 1
         for (let modifier of globalModifiers().hp) {
@@ -185,6 +203,9 @@
           }
         }
         returnMonster.hp = Math.round(monster.hp * hpMod)
+        if (equipments[index].type === EquipmentType.AMULET) {
+          returnMonster.hp += equipments[index].value
+        }
 
         return returnMonster
       })
