@@ -1,4 +1,5 @@
 import { type Monster } from './monster'
+import { type Equipment} from './shop'
 
 export type MonsterGroup = {
   getMonsters: () => Monster[],
@@ -16,5 +17,7 @@ export type EnemyMonsterGroup = MonsterGroup & {
 
 export type PlayerMonsterGroup = MonsterGroup & {
   heal: (healRate: number) => void,
-  upgradedMonsters: () => Monster[]
+  upgradedMonsters: () => Monster[],
+  setEquipment: (equipment: Equipment, index: number) => void,
+  getEquipment: () => Equipment[],
 }

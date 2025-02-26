@@ -78,10 +78,14 @@
     let { getMonsters, setMonsters, totalStats, getMonster, setMonster, reset } = monsterGroup()
 
     let equipments: Equipment[] = $state([equipment(0, 'Empty'), equipment(0, 'Empty'), equipment(0, 'Empty'), equipment(0, 'Empty')])
-    export function setEquipment(equipment: Equipment, index: number): void {
+    function setEquipment(equipment: Equipment, index: number): void {
       const newEquipments = [...equipments]
       newEquipments[index] = equipment
       equipments = [...newEquipments]
+    }
+
+    function getEquipment(): Equipment[] {
+      return equipments
     }
 
     function heal(healRate: number): void {
@@ -156,7 +160,7 @@
         }
         returnMonster.def = Math.round(monster.def * defMod)
         if (equipments[index].type === EquipmentType.ARMOR) {
-          returnMonster.atk += equipments[index].value
+          returnMonster.def += equipments[index].value
         }
 
         let spdMod = 1
@@ -215,7 +219,7 @@
       return applyUpgrades
     }
 
-    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, heal, upgradedMonsters, reset }
+    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, heal, upgradedMonsters, reset, setEquipment, getEquipment }
   }
 
   export function enemyMonsters(): EnemyMonsterGroup {
