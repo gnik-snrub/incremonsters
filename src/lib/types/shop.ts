@@ -30,6 +30,7 @@ export type PrestigeBoostEffect = BoostEffect & {
 }
 
 export type Equipment = {
+  id: String,
   name: string,
   level: number,
   type: EquipmentType,

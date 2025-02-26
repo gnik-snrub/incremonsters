@@ -1,11 +1,14 @@
 <script lang="ts" module>
   import { EquipmentType, type Equipment } from "$lib/types/shop"
   import { calculateScaling } from "$lib/helper/math"
+  import { v4 as uuid } from 'uuid'
 
   export function equipment(
     level: number,
     type: EquipmentType,
   ): Equipment {
+
+    const id = uuid()
 
     let name = ''
     switch (type) {
@@ -28,6 +31,6 @@
 
     const value = name === 'Empty' ? 0 : calculateScaling(level, 10, 1.05)
 
-    return { name, level, type, value }
+    return { id, name, level, type, value }
   }
 </script>
