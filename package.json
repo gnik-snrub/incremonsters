@@ -15,7 +15,8 @@
   "dependencies": {
     "@tauri-apps/api": "^2.2.0",
     "@tauri-apps/plugin-fs": "^2.2.0",
-    "@tauri-apps/plugin-shell": "^2"
+    "@tauri-apps/plugin-shell": "^2",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.5",
