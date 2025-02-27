@@ -9,8 +9,7 @@ use monsters::{MonsterFamily, generate_monster};
 mod math;
 use math::battle::battle;
 use math::rewards::{win_battle_rewards, GrowthBoosts};
-
-use rand::Rng;
+mod traits;
 
 #[tauri::command]
 fn create_monster(lvl: i32) -> Monster {

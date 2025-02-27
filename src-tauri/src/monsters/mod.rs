@@ -1,13 +1,7 @@
-use ogre::OGRE_GROWTH_RATE;
-use skeleton::SKELETON_GROWTH_RATE;
 use stonekin::{ StonekinType, PEBBLEBOUND_GROWTH_RATE, SLATEBLADE_GROWTH_RATE, BOLDERFIST_GROWTH_RATE, MOUNTAINHEART_GROWTH_RATE};
-use zombie::ZOMBIE_GROWTH_RATE;
 
 use crate::{math::rewards::{GrowthBoosts, GrowthModifier}, models::Monster};
 
-pub mod ogre;
-pub mod skeleton;
-pub mod zombie;
 pub mod stonekin;
 
 pub enum MonsterFamily {
