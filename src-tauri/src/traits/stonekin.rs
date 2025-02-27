@@ -1,5 +1,7 @@
-use super::Trait;
-use crate::math::battle::damage_calculation;
+use rand::{Rng, thread_rng};
+
+use super::{MonsterTrait, Trait};
+use crate::{math::battle::damage_calculation, models::{Monster, Trigger}};
 
 #[derive(Clone, Copy)]
 pub enum StonekinTrait {
@@ -16,7 +18,7 @@ impl MonsterTrait for StonekinTrait {
                 Trait {
                     name: "Cliff's Edge".to_string(),
                     description: "Defense stat (50%) provides extra damage on hit by reinforcing its powerful blows".to_string(),
-                    trigger: Trigger::OnHit,
+                    trigger: Trigger::OnAttack,
                     callback: cliffs_edge
                 }
             }
@@ -24,7 +26,7 @@ impl MonsterTrait for StonekinTrait {
                 Trait {
                     name: "Quaking Dodge".to_string(),
                     description: "Quick footwork and powerful stomping allows it a chance to dodge attacks at higher defense, while weakening the defense of enemies".to_string(),
-                    trigger: Trigger::OnDamage,
+                    trigger: Trigger::OnDefend,
                     callback: quaking_dodge
                 }
             }
@@ -32,7 +34,7 @@ impl MonsterTrait for StonekinTrait {
                 Trait {
                     name: "Shared Earth Armor".to_string(),
                     description: "On hit, offers shards of carapace to allies, adding its own defense (20%) to that of allies.".to_string(),
-                    trigger: Trigger::OnHit,
+                    trigger: Trigger::OnDamage,
                     callback: shared_earth_armor
                 }
             }
@@ -40,7 +42,7 @@ impl MonsterTrait for StonekinTrait {
                 Trait {
                     name: "Titanic Retaliation".to_string(),
                     description: "When hit, lets out a seismic shock, dealing damage to all who oppose it based on its defense (50%)".to_string(),
-                    trigger: Trigger::OnHit,
+                    trigger: Trigger::OnDamage,
                     callback: titanic_retaliation
                 }
             }
@@ -50,14 +52,14 @@ impl MonsterTrait for StonekinTrait {
 
 fn cliffs_edge(
     self_value: Option<Monster>,
-    opponent: Option<Monster>,
-    allies: Option<Vec<Monster>>,
-    enemies: Option<Vec<Monster>>,
+    _opponent: Option<Monster>,
+    _allies: Option<Vec<Monster>>,
+    _enemies: Option<Vec<Monster>>,
     damage: Option<i32>
 ) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
-    let unwrapped_damage = damage.unwrap();
+    let mut unwrapped_damage = damage.unwrap();
     let unwrapped_self = self_value.unwrap();
-    unwrapped_damage += (unwrapped_self.def * 0.5);
+    unwrapped_damage += unwrapped_self.def / 2;
 
     (None, None, None, None, Some(unwrapped_damage))
 }
@@ -65,24 +67,24 @@ fn cliffs_edge(
 fn quaking_dodge(
     self_value: Option<Monster>,
     opponent: Option<Monster>,
-    allies: Option<Vec<Monster>>,
+    _allies: Option<Vec<Monster>>,
     enemies: Option<Vec<Monster>>,
     damage: Option<i32>
 ) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
     let unwrapped_self = self_value.unwrap();
     let unwrapped_opponent = opponent.unwrap();
-    let unwrapped_enemies = enemies.unwrap();
-    let unwrapped_damage = damage.unwrap();
+    let mut unwrapped_enemies = enemies.unwrap();
+    let mut unwrapped_damage = damage.unwrap();
 
     let def_cubed = unwrapped_self.atk.pow(3);
     let atk_cubed = unwrapped_opponent.atk.pow(3);
 
-    let probability = def_cubed / (def_cubed + atk_cubed).clamp(0.1, 0.9);
+    let probability: f64 = ((def_cubed / (def_cubed + atk_cubed)) as f64).clamp(0.1, 0.9);
 
-    if thread_rng().gen_bool(probability) {
+    if thread_rng().gen_bool(probability.into()) {
         unwrapped_damage = 0;
-        for enemy in unwrapped_enemies {
-            enemy.def -= (enemy.def * 0.05);
+        for enemy in &mut unwrapped_enemies {
+            enemy.def -= enemy.def / 20;
         }
     }
 
@@ -91,16 +93,16 @@ fn quaking_dodge(
 
 fn shared_earth_armor(
     self_value: Option<Monster>,
-    opponent: Option<Monster>,
+    _opponent: Option<Monster>,
     allies: Option<Vec<Monster>>,
-    enemies: Option<Vec<Monster>>,
-    damage: Option<i32>
+    _enemies: Option<Vec<Monster>>,
+    _damage: Option<i32>
 ) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
     let unwrapped_self = self_value.unwrap();
-    let unwrapped_allies = allies.unwrap();
+    let mut unwrapped_allies = allies.unwrap();
 
-    let def_bonus = unwrapped_self.def * 0.2;
-    for ally in unwrapped_allies {
+    let def_bonus = unwrapped_self.def / 5;
+    for ally in &mut unwrapped_allies {
         ally.def += def_bonus;
     }
 
@@ -109,18 +111,18 @@ fn shared_earth_armor(
 
 fn titanic_retaliation(
     self_value: Option<Monster>,
-    opponent: Option<Monster>,
-    allies: Option<Vec<Monster>>,
+    _opponent: Option<Monster>,
+    _allies: Option<Vec<Monster>>,
     enemies: Option<Vec<Monster>>,
-    damage: Option<i32>
+    _damage: Option<i32>
 ) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
     let unwrapped_self = self_value.unwrap();
-    let unwrapped_enemies = enemies.unwrap();
+    let mut unwrapped_enemies = enemies.unwrap();
 
-    let retaliation_damage = unwrapped_self.def * 0.5;
+    let retaliation_damage = unwrapped_self.def / 2;
 
-    for enemy in unwrapped_enemies {
-        enemy.damage += calculate_damage(retaliation_damage, enemy.def);
+    for enemy in &mut unwrapped_enemies {
+        enemy.damage += damage_calculation(retaliation_damage, enemy.def);
     }
 
     (None, None, None, Some(unwrapped_enemies), None)
