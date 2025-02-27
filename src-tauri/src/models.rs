@@ -1,5 +1,3 @@
-use std::fmt::format;
-
 // src/models.rs
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -45,13 +43,15 @@ pub struct TemporaryModifier {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
 pub enum Trigger {
-    OnHit,
-    OnDamage,
+    OnAttack, //Attack is started, before damage calc
+    OnHit, //Attack has landed, after damage calc
+    OnDefend, //Has been attacked, not yet damaged
+    OnDamage, //Has been damaged
     StartOfTurn,
     EndOfTurn,
 }
 
-type CallbackFn = fn(
+pub type CallbackFn = fn(
     self_value: Option<Monster>,
     opponent: Option<Monster>,
     allies: Option<Vec<Monster>>,
@@ -65,12 +65,12 @@ fn default_callback() -> CallbackFn {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
 pub struct Trait {
-    name: String,
-    description: String,
-    trigger: Trigger,
+    pub name: String,
+    pub description: String,
+    pub trigger: Trigger,
     #[serde(skip)]
     #[serde(default = "default_callback")]
-    callback: CallbackFn,
+    pub callback: CallbackFn,
 }
 
 impl Monster {
