@@ -3,6 +3,8 @@ use rand::thread_rng;
 
 use crate::models::Monster;
 use crate::monsters::GrowthRates;
+use crate::traits::stonekin::StonekinTrait;
+use crate::traits::MonsterTrait;
 
 use super::MonsterType;
 
@@ -17,10 +19,26 @@ pub enum StonekinType {
 impl MonsterType for StonekinType {
     fn generate(&self) -> Monster {
         match self {
-            StonekinType::Slateblade => Monster::new("Stonekin", "Slateblade", 100, 17, 15, 18),
-            StonekinType::Pebblebound => Monster::new("Stonekin", "Pebblebound", 100, 12, 18, 20),
-            StonekinType::Bolderfist => Monster::new("Stonekin", "Bolderfist", 100, 15, 25, 10),
-            StonekinType::Mountainheart => Monster::new("Stonekin", "Mountainheart", 110, 20, 20, 8),
+            StonekinType::Slateblade => {
+                let mut temp = Monster::new("Stonekin", "Slateblade", 100, 17, 15, 18);
+                temp.add_trait(StonekinTrait::Slateblade.get());
+                temp
+            },
+            StonekinType::Pebblebound => {
+                let mut temp = Monster::new("Stonekin", "Pebblebound", 100, 12, 18, 20);
+                temp.add_trait(StonekinTrait::Pebblebound.get());
+                temp
+            },
+            StonekinType::Bolderfist => {
+                let mut temp = Monster::new("Stonekin", "Bolderfist", 100, 15, 25, 10);
+                temp.add_trait(StonekinTrait::Bolderfist.get());
+                temp
+            },
+            StonekinType::Mountainheart => {
+                let mut temp = Monster::new("Stonekin", "Mountainheart", 110, 20, 20, 8);
+                temp.add_trait(StonekinTrait::Mountainheart.get());
+                temp
+            },
         }
     }
     fn random() -> Self {
