@@ -54,10 +54,10 @@ fn get_new_stat(original_stat: i32, growth_rate: f32, modifiers: &Vec<GrowthModi
 
 fn find_growth_rate(monster: Monster) -> GrowthRates {
     let rate = match monster.creature_type.as_str() {
-        "Pebblebound" => stonekin::PEBBLEBOUND_GROWTH_RATE,
-        "Slateblade" => stonekin::SLATEBLADE_GROWTH_RATE,
-        "Bolderfist" => stonekin::BOLDERFIST_GROWTH_RATE,
-        "Mountainheart" => stonekin::MOUNTAINHEART_GROWTH_RATE,
+        "Pebblebound" => PEBBLEBOUND_GROWTH_RATE,
+        "Slateblade" => SLATEBLADE_GROWTH_RATE,
+        "Bolderfist" => BOLDERFIST_GROWTH_RATE,
+        "Mountainheart" => MOUNTAINHEART_GROWTH_RATE,
         _ => MISSING_GROWTH_RATE,
     };
     rate
