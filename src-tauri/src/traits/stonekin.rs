@@ -1,9 +1,12 @@
 use rand::{Rng, thread_rng};
+use serde::{Deserialize, Serialize};
 
-use super::{MonsterTrait, Trait};
-use crate::{math::battle::damage_calculation, models::{Monster, Trigger}};
+use super::{MonsterTrait, Trait, TraitTrait};
+use crate::{math::battle::damage_calculation, models::{CallbackFn, Monster, Trigger}};
 
-#[derive(Clone, Copy)]
+use super::MonsterTrait::Stonekin;
+
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Deserialize, Serialize)]
 pub enum StonekinTrait {
     Slateblade,
     Pebblebound,
@@ -11,15 +14,15 @@ pub enum StonekinTrait {
     Mountainheart,
 }
 
-impl MonsterTrait for StonekinTrait {
-    fn get(&self) -> Trait {
+impl TraitTrait for StonekinTrait {
+    fn create(self) -> Trait {
         match self {
             StonekinTrait::Slateblade => {
                 Trait {
                     name: "Cliff's Edge".to_string(),
                     description: "Defense stat (50%) provides extra damage on hit by reinforcing its powerful blows".to_string(),
-                    trigger: Trigger::OnAttack,
-                    callback: cliffs_edge
+                    trigger: Trigger::OnHit,
+                    monster: Stonekin(StonekinTrait::Slateblade),
                 }
             }
             StonekinTrait::Pebblebound => {
@@ -27,7 +30,7 @@ impl MonsterTrait for StonekinTrait {
                     name: "Quaking Dodge".to_string(),
                     description: "Quick footwork and powerful stomping allows it a chance to dodge attacks at higher defense, while weakening the defense of enemies".to_string(),
                     trigger: Trigger::OnDefend,
-                    callback: quaking_dodge
+                    monster: Stonekin(StonekinTrait::Pebblebound),
                 }
             }
             StonekinTrait::Bolderfist => {
@@ -35,7 +38,7 @@ impl MonsterTrait for StonekinTrait {
                     name: "Shared Earth Armor".to_string(),
                     description: "On hit, offers shards of carapace to allies, adding its own defense (20%) to that of allies.".to_string(),
                     trigger: Trigger::OnDamage,
-                    callback: shared_earth_armor
+                    monster: Stonekin(StonekinTrait::Bolderfist),
                 }
             }
             StonekinTrait::Mountainheart => {
@@ -43,14 +46,31 @@ impl MonsterTrait for StonekinTrait {
                     name: "Titanic Retaliation".to_string(),
                     description: "When hit, lets out a seismic shock, dealing damage to all who oppose it based on its defense (50%)".to_string(),
                     trigger: Trigger::OnDamage,
-                    callback: titanic_retaliation
+                    monster: Stonekin(StonekinTrait::Mountainheart),
                 }
+            }
+        }
+    }
+
+    fn get(&self) -> CallbackFn {
+        match self {
+            StonekinTrait::Slateblade => {
+                cliffs_edge
+            }
+            StonekinTrait::Pebblebound => {
+                quaking_dodge
+            }
+            StonekinTrait::Bolderfist => {
+                shared_earth_armor
+            }
+            StonekinTrait::Mountainheart => {
+                titanic_retaliation
             }
         }
     }
 }
 
-fn cliffs_edge(
+pub fn cliffs_edge(
     self_value: Option<Monster>,
     _opponent: Option<Monster>,
     _allies: Option<Vec<Monster>>,
@@ -64,7 +84,7 @@ fn cliffs_edge(
     (None, None, None, None, Some(unwrapped_damage))
 }
 
-fn quaking_dodge(
+pub fn quaking_dodge(
     self_value: Option<Monster>,
     opponent: Option<Monster>,
     _allies: Option<Vec<Monster>>,
@@ -91,7 +111,7 @@ fn quaking_dodge(
     (None, None, None, Some(unwrapped_enemies), Some(unwrapped_damage))
 }
 
-fn shared_earth_armor(
+pub fn shared_earth_armor(
     self_value: Option<Monster>,
     _opponent: Option<Monster>,
     allies: Option<Vec<Monster>>,
@@ -109,7 +129,7 @@ fn shared_earth_armor(
     (None, None, Some(unwrapped_allies), None, None)
 }
 
-fn titanic_retaliation(
+pub fn titanic_retaliation(
     self_value: Option<Monster>,
     _opponent: Option<Monster>,
     _allies: Option<Vec<Monster>>,

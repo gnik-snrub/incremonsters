@@ -4,7 +4,7 @@ use rand::thread_rng;
 use crate::models::Monster;
 use crate::monsters::GrowthRates;
 use crate::traits::stonekin::StonekinTrait;
-use crate::traits::MonsterTrait;
+use crate::traits::TraitTrait;
 
 use super::MonsterType;
 
@@ -21,22 +21,22 @@ impl MonsterType for StonekinType {
         match self {
             StonekinType::Slateblade => {
                 let mut temp = Monster::new("Stonekin", "Slateblade", 100, 17, 15, 18);
-                temp.add_trait(StonekinTrait::Slateblade.get());
+                temp.add_trait(StonekinTrait::Slateblade.create());
                 temp
             },
             StonekinType::Pebblebound => {
                 let mut temp = Monster::new("Stonekin", "Pebblebound", 100, 12, 18, 20);
-                temp.add_trait(StonekinTrait::Pebblebound.get());
+                temp.add_trait(StonekinTrait::Pebblebound.create());
                 temp
             },
             StonekinType::Bolderfist => {
                 let mut temp = Monster::new("Stonekin", "Bolderfist", 100, 15, 25, 10);
-                temp.add_trait(StonekinTrait::Bolderfist.get());
+                temp.add_trait(StonekinTrait::Bolderfist.create());
                 temp
             },
             StonekinType::Mountainheart => {
                 let mut temp = Monster::new("Stonekin", "Mountainheart", 110, 20, 20, 8);
-                temp.add_trait(StonekinTrait::Mountainheart.get());
+                temp.add_trait(StonekinTrait::Mountainheart.create());
                 temp
             },
         }

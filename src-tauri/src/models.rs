@@ -2,6 +2,8 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+use crate::traits::{get_callback, MonsterTrait, TraitTrait};
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
 pub struct Monster {
     pub id: String,
@@ -45,8 +47,8 @@ pub struct TemporaryModifier {
 pub enum Trigger {
     OnAttack, //Attack is started, before damage calc
     OnHit, //Attack has landed, after damage calc
-    OnDefend, //Has been attacked, not yet damaged
-    OnDamage, //Has been damaged
+    OnDefend, //Has been attacked, after damage calc, before damage applied
+    OnDamage, //Has been damaged, after damage applied
     StartOfTurn,
     EndOfTurn,
 }
@@ -68,9 +70,7 @@ pub struct Trait {
     pub name: String,
     pub description: String,
     pub trigger: Trigger,
-    #[serde(skip)]
-    #[serde(default = "default_callback")]
-    pub callback: CallbackFn,
+    pub monster: MonsterTrait,
 }
 
 impl Monster {
@@ -112,18 +112,35 @@ impl Monster {
 
         for trait_ in self.clone().traits {
             if trait_.trigger == trigger {
+                let callback = get_callback(trait_.monster);
                 let (new_self,
                     new_opponent,
                     new_allies,
                     new_enemies,
                     new_damage
-                    ) = (trait_.callback)(Some(self.clone()), opponent.clone(), current_allies, current_enemies, current_damage);
+                    ) = (callback)(Some(self.clone()), opponent.clone(), current_allies.clone(), current_enemies.clone(), current_damage);
 
-                current_self = new_self;
-                current_opponent = new_opponent;
-                current_allies = new_allies;
-                current_enemies = new_enemies;
-                current_damage = new_damage;
+                current_self =  match new_self {
+                    Some(new_self) => Some(new_self),
+                    None => current_self
+                };
+                current_opponent = match new_opponent {
+                    Some(new_opponent) => Some(new_opponent),
+                    None => current_opponent
+                };
+                current_allies = match new_allies {
+                    Some(new_allies) => Some(new_allies),
+                    None => current_allies
+                };
+                current_enemies = match new_enemies {
+                    Some(new_enemies) => Some(new_enemies),
+                    None => current_enemies
+                };
+                current_damage = match new_damage {
+                    Some(new_damage) => Some(new_damage),
+                    None => current_damage
+                };
+
             }
         }
 
