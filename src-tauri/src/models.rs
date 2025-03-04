@@ -19,6 +19,15 @@ pub struct Monster {
     pub lvl: i32,
     pub traits: Vec<Trait>,
     pub temporary_modifiers: Vec<TemporaryModifier>,
+    pub stat_adjustments: StatAdjustments,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
+pub struct StatAdjustments {
+    pub hp: i32,
+    pub atk: i32,
+    pub def: i32,
+    pub spd: i32
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
@@ -92,6 +101,12 @@ impl Monster {
             lvl: 1,
             traits: Vec::new(),
             temporary_modifiers: Vec::new(),
+            stat_adjustments: StatAdjustments {
+                hp: 0,
+                atk: 0,
+                def: 0,
+                spd: 0
+            }
         }
     }
 
