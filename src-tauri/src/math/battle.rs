@@ -1,7 +1,7 @@
 use crate::models::{Monster, Trigger};
 use serde::{Deserialize, Serialize};
 use rand::seq::SliceRandom;
-use rand::{random};
+use rand::random;
 
 fn get_speed_order(player: &Vec<Monster>, enemy: &Vec<Monster>, player_speed_mod: f32) -> Vec<(i32, String, usize)> {
     let mut combined: Vec<(i32, String, usize)> = Vec::new();
@@ -65,11 +65,11 @@ pub fn damage_calculation(atk: i32, def: i32) -> i32 {
 
 #[derive(Serialize, Deserialize)]
 pub struct GlobalModifier {
-    sourceId: String,
+    source_id: String,
     name: String,
     description: String,
-    modType: ModType,
-    modValue: f32,
+    mod_type: ModType,
+    mod_value: f32,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -91,18 +91,18 @@ pub struct GlobalModifiers {
 fn calculate_modifier(mods: Vec<GlobalModifier>) -> f32 {
     let mut mod_total: f32 = 1.0;
     for m in mods {
-        match m.modType {
+        match m.mod_type {
             ModType::ADD => {
-                mod_total += m.modValue;
+                mod_total += m.mod_value;
             },
             ModType::SUB => {
-                mod_total -= m.modValue;
+                mod_total -= m.mod_value;
             },
             ModType::DIV => {
-                mod_total /= m.modValue;
+                mod_total /= m.mod_value;
             },
             ModType::MULT => {
-                mod_total *= m.modValue;
+                mod_total *= m.mod_value;
             },
         }
     }
