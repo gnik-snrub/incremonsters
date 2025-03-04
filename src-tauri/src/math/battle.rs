@@ -109,13 +109,6 @@ fn calculate_modifier(mods: Vec<GlobalModifier>) -> f32 {
     mod_total
 }
 
-/*
-        trigger: Trigger,
-        opponent: &Option<Monster>,
-        allies: Option<Vec<Monster>>,
-        enemies: Option<Vec<Monster>>,
-        damage: Option<i32>,
-        */
 #[tauri::command]
 pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifiers: GlobalModifiers) -> [Vec<Monster>; 2] {
     let attack_mod = calculate_modifier(global_modifiers.atk);

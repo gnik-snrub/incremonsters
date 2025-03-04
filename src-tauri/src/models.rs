@@ -22,13 +22,15 @@ pub struct Monster {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
-enum ModMode {
-  Additive,
-  Multiplicative,
+pub enum ModMode {
+  Add,
+  Mult,
+  Sub,
+  Div,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
-enum ModType {
+pub enum ModType {
   HP,
   ATK,
   DEF,
@@ -37,10 +39,11 @@ enum ModType {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
 pub struct TemporaryModifier {
-    source: String,
-    mod_type: ModType,
-    mod_mode: ModMode,
-    mod_value: i32,
+    pub source: String,
+    pub mod_type: ModType,
+    pub mod_mode: ModMode,
+    pub mod_value: i32,
+    pub quantity: i32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
