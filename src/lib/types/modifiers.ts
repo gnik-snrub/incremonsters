@@ -7,23 +7,24 @@ export type GlobalModifier = {
 }
 
 export type BattleModifier = {
-  sourceId: String,
-  modTarget: ModTarget,
-  modType: ModType,
-  modValue: number,
-}
-
-export enum ModTarget {
-  HP = 'hp',
-  ATK = 'atk',
-  DEF = 'def',
-  SPD = 'spd',
+  source: String,
+  mod_mode: ModMode,
+  mod_type: ModType,
+  mod_value: number,
+  quantity: number
 }
 
 export enum ModType {
-  MULT = 'MULT',
-  ADD = 'ADD',
-  SUB = 'SUB',
-  DIV = 'DIV',
+  HP,
+  ATK,
+  DEF,
+  SPD,
+}
+
+export enum ModMode {
+  MULT = 'Mult',
+  ADD = 'Add',
+  SUB = 'Sub',
+  DIV = 'Div',
 }
 

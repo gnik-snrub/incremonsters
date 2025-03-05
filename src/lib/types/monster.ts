@@ -11,7 +11,7 @@ export type Monster = {
   exp: number,
   lvl: number,
   traits: Trait[],
-  battleModifiers: BattleModifier[],
+  temporary_modifiers: BattleModifier[],
 }
 
 type Trait = {

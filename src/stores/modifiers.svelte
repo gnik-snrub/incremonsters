@@ -7,11 +7,11 @@
   }
   const globalAtkModifiers = $derived([
     {
-      sourceId: "shopAtkAdd",
+      source_id: "shopAtkAdd",
       name: shopAtkAdd.name,
       description: shopAtkAdd.description,
-      modType: ModType.ADD,
-      modValue: shopAtkAdd.amountBought() * shopAtkAdd.effectMagnitude,
+      mod_type: ModType.ADD,
+      mod_value: shopAtkAdd.amountBought() * shopAtkAdd.effectMagnitude,
     }
   ])
   function getGlobalDef() {
@@ -19,11 +19,11 @@
   }
   const globalDefModifiers = $derived([
     {
-      sourceId: "shopDefAdd",
+      source_id: "shopDefAdd",
       name: shopDefAdd.name,
       description: shopDefAdd.description,
-      modType: ModType.ADD,
-      modValue: shopDefAdd.amountBought() * shopDefAdd.effectMagnitude,
+      mod_type: ModType.ADD,
+      mod_value: shopDefAdd.amountBought() * shopDefAdd.effectMagnitude,
     }
   ])
   function getGlobalSpd() {
@@ -31,11 +31,11 @@
   }
   const globalSpdModifiers = $derived([
     {
-      sourceId: "shopSpdAdd",
+      source_id: "shopSpdAdd",
       name: shopSpdAdd.name,
       description: shopSpdAdd.description,
-      modType: ModType.ADD,
-      modValue: shopSpdAdd.amountBought() * shopSpdAdd.effectMagnitude,
+      mod_type: ModType.ADD,
+      mod_value: shopSpdAdd.amountBought() * shopSpdAdd.effectMagnitude,
     }
   ])
   function getGlobalHp() {
@@ -43,11 +43,11 @@
   }
   const globalHpModifiers = $derived([
     {
-      sourceId: "shopHpAdd",
+      source_id: "shopHpAdd",
       name: shopHpAdd.name,
       description: shopHpAdd.description,
-      modType: ModType.ADD,
-      modValue: shopHpAdd.amountBought() * shopHpAdd.effectMagnitude,
+      mod_type: ModType.ADD,
+      mod_value: shopHpAdd.amountBought() * shopHpAdd.effectMagnitude,
     }
   ])
 
