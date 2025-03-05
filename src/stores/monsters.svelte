@@ -4,7 +4,7 @@
   import { type Monster, isMonster } from "$lib/types/monster"
   import { type MonsterGroup, type EnemyMonsterGroup, type PlayerMonsterGroup } from "$lib/types/monstergroup"
   import { globalModifiers } from "./modifiers.svelte"
-  import { ModType } from "$lib/types/modifiers";
+  import { ModMode, ModType } from "$lib/types/modifiers";
   import { equipment } from "$lib/entities/shop/equipment.svelte";
   import { EquipmentType, type Equipment } from "$lib/types/shop";
 
@@ -112,27 +112,27 @@
       return allDead
     }
 
+    function applyModifier(value: number, modifier: ModMode, modValue: number): number {
+      switch (modifier) {
+        case ModMode.ADD:
+          return value + modValue
+        case ModMode.MULT:
+          return value * modValue
+        case ModMode.SUB:
+          return value - modValue
+        case ModMode.DIV:
+          return value / modValue
+        default:
+          return value
+      }
+    }
+
     let applyUpgrades = $derived.by(() => {
       return playerSquad.getMonsters().map((monster: Monster, index: number) => {
         let returnMonster = { ...monster }
         let atkMod = 1
         for (let modifier of globalModifiers().atk) {
-          switch (modifier.modType) {
-            case ModType.ADD:
-              atkMod += modifier.modValue
-              break
-            case ModType.MULT:
-              atkMod *= modifier.modValue
-              break
-            case ModType.SUB:
-              atkMod -= modifier.modValue
-              break
-            case ModType.DIV:
-              atkMod /= modifier.modValue
-              break
-            default:
-              break
-          }
+          atkMod = applyModifier(atkMod, modifier.modType, modifier.modValue)
         }
         returnMonster.atk = Math.round(monster.atk * atkMod)
         if (equipments[index].type === EquipmentType.WEAPON) {
@@ -142,16 +142,16 @@
         let defMod = 1
         for (let modifier of globalModifiers().def) {
           switch (modifier.modType) {
-            case ModType.ADD:
+            case ModMode.ADD:
               defMod += modifier.modValue
               break
-            case ModType.MULT:
+            case ModMode.MULT:
               defMod *= modifier.modValue
               break
-            case ModType.SUB:
+            case ModMode.SUB:
               defMod -= modifier.modValue
               break
-            case ModType.DIV:
+            case ModMode.DIV:
               defMod /= modifier.modValue
               break
             default:
@@ -166,16 +166,16 @@
         let spdMod = 1
         for (let modifier of globalModifiers().spd) {
           switch (modifier.modType) {
-            case ModType.ADD:
+            case ModMode.ADD:
               spdMod += modifier.modValue
               break
-            case ModType.MULT:
+            case ModMode.MULT:
               spdMod *= modifier.modValue
               break
-            case ModType.SUB:
+            case ModMode.SUB:
               spdMod -= modifier.modValue
               break
-            case ModType.DIV:
+            case ModMode.DIV:
               spdMod /= modifier.modValue
               break
             default:
@@ -190,16 +190,16 @@
         let hpMod = 1
         for (let modifier of globalModifiers().hp) {
           switch (modifier.modType) {
-            case ModType.ADD:
+            case ModMode.ADD:
               hpMod += modifier.modValue
               break
-            case ModType.MULT:
+            case ModMode.MULT:
               hpMod *= modifier.modValue
               break
-            case ModType.SUB:
+            case ModMode.SUB:
               hpMod -= modifier.modValue
               break
-            case ModType.DIV:
+            case ModMode.DIV:
               hpMod /= modifier.modValue
               break
             default:
