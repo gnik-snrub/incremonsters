@@ -1,4 +1,4 @@
-use crate::models::{Monster, Trigger};
+use crate::models::{ModMode, ModType, Monster, StatAdjustments, Trigger};
 use serde::{Deserialize, Serialize};
 use rand::seq::SliceRandom;
 use rand::random;
@@ -6,10 +6,10 @@ use rand::random;
 fn get_speed_order(player: &Vec<Monster>, enemy: &Vec<Monster>, player_speed_mod: f32) -> Vec<(i32, String, usize)> {
     let mut combined: Vec<(i32, String, usize)> = Vec::new();
     for (i, monster) in player.iter().enumerate() {
-        combined.push(((monster.spd as f32 * player_speed_mod) as i32, "player".to_string(), i));
+        combined.push((((monster.spd + monster.stat_adjustments.spd) as f32 * player_speed_mod) as i32, "player".to_string(), i));
     }
     for (i, monster) in enemy.iter().enumerate() {
-        combined.push((monster.spd, "enemy".to_string(), i));
+        combined.push((monster.spd + monster.stat_adjustments.spd, "enemy".to_string(), i));
     }
     combined.sort_by(|a, b| {
         let cmp = a.0.cmp(&b.0);
@@ -32,7 +32,7 @@ fn get_target(monsters: &Vec<Monster>) -> Option<usize> {
         .iter()
         .enumerate()
         .filter_map(|(idx, m)| {
-            if m.damage < m.hp {
+            if m.damage < m.hp + m.stat_adjustments.hp {
                 Some(idx)
             } else {
                 None
@@ -68,16 +68,8 @@ pub struct GlobalModifier {
     source_id: String,
     name: String,
     description: String,
-    mod_type: ModType,
+    mod_mode: ModMode,
     mod_value: f32,
-}
-
-#[derive(Serialize, Deserialize)]
-pub enum ModType {
-  MULT,
-  ADD,
-  SUB,
-  DIV,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -91,23 +83,24 @@ pub struct GlobalModifiers {
 fn calculate_modifier(mods: Vec<GlobalModifier>) -> f32 {
     let mut mod_total: f32 = 1.0;
     for m in mods {
-        match m.mod_type {
-            ModType::ADD => {
+        match m.mod_mode {
+            ModMode::Add => {
                 mod_total += m.mod_value;
             },
-            ModType::SUB => {
+            ModMode::Sub => {
                 mod_total -= m.mod_value;
             },
-            ModType::DIV => {
+            ModMode::Div => {
                 mod_total /= m.mod_value;
             },
-            ModType::MULT => {
+            ModMode::Mult => {
                 mod_total *= m.mod_value;
             },
         }
     }
     mod_total
 }
+
 
 #[tauri::command]
 pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifiers: GlobalModifiers) -> [Vec<Monster>; 2] {
@@ -118,8 +111,10 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
     let ordered: Vec<(i32, String, usize)> = get_speed_order(&player, &enemy, speed_mod);
     for (_, side, index) in ordered {
         if side == "player" {
+            player[index].stat_adjustments = adjust_for_temporary_modifiers(&player[index]);
             match get_target(&enemy) {
                 Some(target_idx) => {
+                    enemy[target_idx].stat_adjustments = adjust_for_temporary_modifiers(&enemy[target_idx]);
                     // OnAttack trait triggers
                     let (attack_trigger_self,
                         attack_trigger_opponent,
@@ -134,7 +129,8 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
                     enemy = attack_tuple.3;
 
                     // Damage calculation
-                    let mut damage: i32 = damage_calculation((player[index].atk as f32 * attack_mod) as i32, enemy[target_idx].def);
+                    let mut damage: i32 = damage_calculation(((player[index].atk + player[index].stat_adjustments.atk) as f32 * attack_mod) as i32,
+                        enemy[target_idx].def + enemy[target_idx].stat_adjustments.def);
 
                     // OnHit trait triggers
                     let (hit_trigger_self,
@@ -182,7 +178,7 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
                     _ = damage_tuple.4;
 
                     // Damage is capped to HP, so as to not ip into negative health
-                    if enemy[target_idx].damage > enemy[target_idx].hp {
+                    if enemy[target_idx].damage > enemy[target_idx].hp + enemy[target_idx].stat_adjustments.hp {
                         enemy[target_idx].damage = enemy[target_idx].hp;
                     }
                 }
@@ -205,7 +201,8 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
                     player = attack_tuple.3;
 
                     // Damage calculation
-                    let mut damage: i32 = damage_calculation(enemy[index].atk, (player[target_idx].def as f32 * defense_mod) as i32);
+                    let mut damage: i32 = damage_calculation(enemy[index].atk + enemy[index].stat_adjustments.atk,
+                        ((player[target_idx].def + player[target_idx].stat_adjustments.def) as f32 * defense_mod) as i32);
 
                     // OnHit trait triggers
                     let (hit_trigger_self,
@@ -253,7 +250,7 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
                     _ = damage_tuple.4;
 
                     // Damage is capped to HP, so as to not ip into negative health
-                    if player[target_idx].damage as f32 > player[target_idx].hp as f32 * hp_mod {
+                    if player[target_idx].damage as f32 > (player[target_idx].hp + player[target_idx].stat_adjustments.hp) as f32 * hp_mod {
                         player[target_idx].damage = player[target_idx].hp;
                     }
                 }
@@ -261,6 +258,8 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
             }
         }
     }
+    println!("player: {:?}", player);
+    println!("enemy: {:?}", enemy);
     [player, enemy]
 }
 
@@ -274,4 +273,47 @@ fn unwrap_trigger_options(mut original: (Monster, Monster, Vec<Monster>, Vec<Mon
     if wrapped.4.is_some() { original.4 = wrapped.4.unwrap(); }
 
     original
+}
+
+fn adjust_for_temporary_modifiers(monster: &Monster) -> StatAdjustments {
+    let mut hp = 0;
+    let mut atk = 0;
+    let mut def = 0;
+    let mut spd = 0;
+    for t in &monster.temporary_modifiers {
+        match t.mod_type {
+            ModType::HP => {
+                hp = adjust_by_type(hp, t.mod_value, &t.mod_mode);
+            },
+            ModType::ATK => {
+                atk = adjust_by_type(atk, t.mod_value, &t.mod_mode);
+            },
+            ModType::DEF => {
+                def = adjust_by_type(def, t.mod_value, &t.mod_mode);
+            },
+            ModType::SPD => {
+                spd = adjust_by_type(spd, t.mod_value, &t.mod_mode);
+            },
+        }
+    }
+    StatAdjustments {
+        hp, atk, def, spd
+    }
+}
+
+fn adjust_by_type(stat: i32, value: i32, mod_mode: &ModMode) -> i32 {
+    match mod_mode {
+        ModMode::Add => {
+            stat + value
+        },
+        ModMode::Sub => {
+            stat - value
+        },
+        ModMode::Div => {
+            stat / value
+        },
+        ModMode::Mult => {
+            stat * value
+        },
+    }
 }

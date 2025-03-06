@@ -1,9 +1,9 @@
 export type GlobalModifier = {
-  sourceId: String,
+  source_id: String,
   name: String,
   description: String,
-  modType: ModType,
-  modValue: number,
+  mod_mode: ModMode,
+  mod_value: number,
 }
 
 export type BattleModifier = {
@@ -15,10 +15,10 @@ export type BattleModifier = {
 }
 
 export enum ModType {
-  HP,
-  ATK,
-  DEF,
-  SPD,
+  HP = 'HP',
+  ATK = 'ATK',
+  DEF = 'DEF',
+  SPD = 'SPD',
 }
 
 export enum ModMode {

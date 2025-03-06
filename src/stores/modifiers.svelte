@@ -1,5 +1,5 @@
 <script lang="ts" module>
-    import {ModType} from "$lib/types/modifiers";
+    import {ModMode, ModType} from "$lib/types/modifiers";
   import { atkBoost as shopAtkAdd, defBoost as shopDefAdd, spdBoost as shopSpdAdd, hpBoost as shopHpAdd } from "./shop.svelte"
 
   function getGlobalAtk() {
@@ -10,7 +10,7 @@
       source_id: "shopAtkAdd",
       name: shopAtkAdd.name,
       description: shopAtkAdd.description,
-      mod_type: ModType.ADD,
+      mod_mode: ModMode.ADD,
       mod_value: shopAtkAdd.amountBought() * shopAtkAdd.effectMagnitude,
     }
   ])
@@ -22,7 +22,7 @@
       source_id: "shopDefAdd",
       name: shopDefAdd.name,
       description: shopDefAdd.description,
-      mod_type: ModType.ADD,
+      mod_mode: ModMode.ADD,
       mod_value: shopDefAdd.amountBought() * shopDefAdd.effectMagnitude,
     }
   ])
@@ -34,7 +34,7 @@
       source_id: "shopSpdAdd",
       name: shopSpdAdd.name,
       description: shopSpdAdd.description,
-      mod_type: ModType.ADD,
+      mod_mode: ModMode.ADD,
       mod_value: shopSpdAdd.amountBought() * shopSpdAdd.effectMagnitude,
     }
   ])
@@ -46,7 +46,7 @@
       source_id: "shopHpAdd",
       name: shopHpAdd.name,
       description: shopHpAdd.description,
-      mod_type: ModType.ADD,
+      mod_mode: ModMode.ADD,
       mod_value: shopHpAdd.amountBought() * shopHpAdd.effectMagnitude,
     }
   ])

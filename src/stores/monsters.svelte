@@ -112,16 +112,16 @@
       return allDead
     }
 
-    function applyModifier(value: number, modifier: ModMode, modValue: number): number {
+    function applyModifier(value: number, modifier: ModMode, mod_value: number): number {
       switch (modifier) {
         case ModMode.ADD:
-          return value + modValue
+          return value + mod_value
         case ModMode.MULT:
-          return value * modValue
+          return value * mod_value
         case ModMode.SUB:
-          return value - modValue
+          return value - mod_value
         case ModMode.DIV:
-          return value / modValue
+          return value / mod_value
         default:
           return value
       }
@@ -130,9 +130,11 @@
     let applyUpgrades = $derived.by(() => {
       return playerSquad.getMonsters().map((monster: Monster, index: number) => {
         let returnMonster = { ...monster }
+
+        // Global Modifiers are applied
         let atkMod = 1
         for (let modifier of globalModifiers().atk) {
-          atkMod = applyModifier(atkMod, modifier.modType, modifier.modValue)
+          atkMod = applyModifier(atkMod, modifier.mod_mode, modifier.mod_value)
         }
         returnMonster.atk = Math.round(monster.atk * atkMod)
         if (equipments[index].type === EquipmentType.WEAPON) {
@@ -141,22 +143,7 @@
 
         let defMod = 1
         for (let modifier of globalModifiers().def) {
-          switch (modifier.modType) {
-            case ModMode.ADD:
-              defMod += modifier.modValue
-              break
-            case ModMode.MULT:
-              defMod *= modifier.modValue
-              break
-            case ModMode.SUB:
-              defMod -= modifier.modValue
-              break
-            case ModMode.DIV:
-              defMod /= modifier.modValue
-              break
-            default:
-              break
-          }
+          defMod = applyModifier(defMod, modifier.mod_mode, modifier.mod_value)
         }
         returnMonster.def = Math.round(monster.def * defMod)
         if (equipments[index].type === EquipmentType.ARMOR) {
@@ -165,22 +152,7 @@
 
         let spdMod = 1
         for (let modifier of globalModifiers().spd) {
-          switch (modifier.modType) {
-            case ModMode.ADD:
-              spdMod += modifier.modValue
-              break
-            case ModMode.MULT:
-              spdMod *= modifier.modValue
-              break
-            case ModMode.SUB:
-              spdMod -= modifier.modValue
-              break
-            case ModMode.DIV:
-              spdMod /= modifier.modValue
-              break
-            default:
-              break
-          }
+          spdMod = applyModifier(spdMod, modifier.mod_mode, modifier.mod_value)
         }
         returnMonster.spd = Math.round(monster.spd * spdMod)
         if (equipments[index].type === EquipmentType.BOOTS) {
@@ -189,26 +161,29 @@
 
         let hpMod = 1
         for (let modifier of globalModifiers().hp) {
-          switch (modifier.modType) {
-            case ModMode.ADD:
-              hpMod += modifier.modValue
-              break
-            case ModMode.MULT:
-              hpMod *= modifier.modValue
-              break
-            case ModMode.SUB:
-              hpMod -= modifier.modValue
-              break
-            case ModMode.DIV:
-              hpMod /= modifier.modValue
-              break
-            default:
-              break
-          }
+          hpMod = applyModifier(hpMod, modifier.mod_mode, modifier.mod_value)
         }
         returnMonster.hp = Math.round(monster.hp * hpMod)
         if (equipments[index].type === EquipmentType.AMULET) {
           returnMonster.hp += equipments[index].value
+        }
+
+        // Temporary Modifiers are applied
+        for (let modifier of monster.temporary_modifiers) {
+          switch (modifier.mod_type) {
+            case ModType.HP:
+              returnMonster.hp = applyModifier(returnMonster.hp, modifier.mod_mode, modifier.mod_value * modifier.quantity)
+              break
+            case ModType.ATK:
+              returnMonster.atk = applyModifier(returnMonster.atk, modifier.mod_mode, modifier.mod_value * modifier.quantity)
+              break
+            case ModType.DEF:
+              returnMonster.def = applyModifier(returnMonster.def, modifier.mod_mode, modifier.mod_value * modifier.quantity)
+              break
+            case ModType.SPD:
+              returnMonster.spd = applyModifier(returnMonster.spd, modifier.mod_mode, modifier.mod_value * modifier.quantity)
+              break
+          }
         }
 
         return returnMonster
@@ -219,7 +194,17 @@
       return applyUpgrades
     }
 
-    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, heal, upgradedMonsters, reset, setEquipment, getEquipment }
+    function resetTemporaryModifiers() {
+      let resetSquad = getMonsters().map((monster) => {
+        return {
+          ...monster,
+          temporary_modifiers: [],
+        }
+      })
+      setMonsters(resetSquad)
+    }
+
+    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, heal, upgradedMonsters, reset, setEquipment, getEquipment, resetTemporaryModifiers }
   }
 
   export function enemyMonsters(): EnemyMonsterGroup {

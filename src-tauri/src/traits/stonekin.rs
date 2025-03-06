@@ -2,7 +2,7 @@ use rand::{Rng, thread_rng};
 use serde::{Deserialize, Serialize};
 
 use super::{MonsterTrait, Trait, TraitTrait};
-use crate::{math::battle::damage_calculation, models::{CallbackFn, Monster, Trigger}};
+use crate::{math::battle::damage_calculation, models::{CallbackFn, ModMode, ModType, Monster, TemporaryModifier, Trigger}};
 
 use super::MonsterTrait::Stonekin;
 
@@ -79,7 +79,7 @@ pub fn cliffs_edge(
 ) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
     let mut unwrapped_damage = damage.unwrap();
     let unwrapped_self = self_value.unwrap();
-    unwrapped_damage += unwrapped_self.def / 2;
+    unwrapped_damage += (unwrapped_self.def + unwrapped_self.stat_adjustments.def) / 2;
 
     (None, None, None, None, Some(unwrapped_damage))
 }
@@ -96,15 +96,29 @@ pub fn quaking_dodge(
     let mut unwrapped_enemies = enemies.unwrap();
     let mut unwrapped_damage = damage.unwrap();
 
-    let def_cubed = unwrapped_self.atk.pow(3);
-    let atk_cubed = unwrapped_opponent.atk.pow(3);
+    let def_cubed = (unwrapped_self.atk + unwrapped_self.stat_adjustments.atk).pow(3);
+    let atk_cubed = (unwrapped_opponent.atk + unwrapped_opponent.stat_adjustments.atk).pow(3);
 
     let probability: f64 = ((def_cubed / (def_cubed + atk_cubed)) as f64).clamp(0.1, 0.9);
 
     if thread_rng().gen_bool(probability.into()) {
         unwrapped_damage = 0;
         for enemy in &mut unwrapped_enemies {
-            enemy.def -= enemy.def / 20;
+            if let Some(idx) = enemy.temporary_modifiers.iter().position(|modifier| modifier.source == "quaking_dodge".to_string()) {
+                let mut modifier = enemy.temporary_modifiers[idx].clone();
+                modifier.quantity += 1;
+                modifier.mod_value = (enemy.def + enemy.stat_adjustments.def) / (modifier.quantity * 20);
+                enemy.temporary_modifiers[idx] = modifier;
+            } else {
+                let modifier = TemporaryModifier {
+                    source: "quaking_dodge".to_string(),
+                    mod_type: ModType::DEF,
+                    mod_mode: ModMode::Sub,
+                    mod_value: (enemy.def + enemy.stat_adjustments.def) / 20 | 1,
+                    quantity: 1,
+                };
+                enemy.temporary_modifiers.push(modifier);
+            }
         }
     }
 
@@ -121,9 +135,23 @@ pub fn shared_earth_armor(
     let unwrapped_self = self_value.unwrap();
     let mut unwrapped_allies = allies.unwrap();
 
-    let def_bonus = unwrapped_self.def / 5;
+    let def_bonus = (unwrapped_self.def + unwrapped_self.stat_adjustments.def) / 5;
     for ally in &mut unwrapped_allies {
-        ally.def += def_bonus;
+        if let Some(idx) = ally.temporary_modifiers.iter().position(|modifier| modifier.source == "shared_earth".to_string()) {
+            let mut modifier = ally.temporary_modifiers[idx].clone();
+            modifier.quantity += 1;
+            modifier.mod_value = def_bonus;
+            ally.temporary_modifiers[idx] = modifier;
+        } else {
+            let modifier = TemporaryModifier {
+                source: "shared_earth".to_string(),
+                mod_type: ModType::DEF,
+                mod_mode: ModMode::Add,
+                mod_value: def_bonus,
+                quantity: 1,
+            };
+            ally.temporary_modifiers.push(modifier);
+        }
     }
 
     (None, None, Some(unwrapped_allies), None, None)
@@ -139,10 +167,10 @@ pub fn titanic_retaliation(
     let unwrapped_self = self_value.unwrap();
     let mut unwrapped_enemies = enemies.unwrap();
 
-    let retaliation_damage = unwrapped_self.def / 2;
+    let retaliation_damage = (unwrapped_self.def + unwrapped_self.stat_adjustments.def) / 2;
 
     for enemy in &mut unwrapped_enemies {
-        enemy.damage += damage_calculation(retaliation_damage, enemy.def);
+        enemy.damage += damage_calculation(retaliation_damage, enemy.def + enemy.stat_adjustments.def);
     }
 
     (None, None, None, Some(unwrapped_enemies), None)
