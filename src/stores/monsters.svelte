@@ -226,6 +226,51 @@
       await Promise.all(monsterPromises)
     }
 
-    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, newMonsters, reset }
+    function applyModifier(value: number, modifier: ModMode, mod_value: number): number {
+      switch (modifier) {
+        case ModMode.ADD:
+          return value + mod_value
+        case ModMode.MULT:
+          return value * mod_value
+        case ModMode.SUB:
+          return value - mod_value
+        case ModMode.DIV:
+          return value / mod_value
+        default:
+          return value
+      }
+    }
+
+    let applyUpgrades = $derived.by(() => {
+      return playerSquad.getMonsters().map((monster: Monster, index: number) => {
+        let returnMonster = { ...monster }
+
+        // Temporary Modifiers are applied
+        for (let modifier of monster.temporary_modifiers) {
+          switch (modifier.mod_type) {
+            case ModType.HP:
+              returnMonster.hp = applyModifier(returnMonster.hp, modifier.mod_mode, modifier.mod_value * modifier.quantity)
+              break
+            case ModType.ATK:
+              returnMonster.atk = applyModifier(returnMonster.atk, modifier.mod_mode, modifier.mod_value * modifier.quantity)
+              break
+            case ModType.DEF:
+              returnMonster.def = applyModifier(returnMonster.def, modifier.mod_mode, modifier.mod_value * modifier.quantity)
+              break
+            case ModType.SPD:
+              returnMonster.spd = applyModifier(returnMonster.spd, modifier.mod_mode, modifier.mod_value * modifier.quantity)
+              break
+          }
+        }
+
+        return returnMonster
+      })
+    })
+
+    function upgradedMonsters(): Monster[] {
+      return applyUpgrades
+    }
+
+    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, newMonsters, reset, upgradedMonsters }
   }
 </script>
