@@ -242,7 +242,7 @@
     }
 
     let applyUpgrades = $derived.by(() => {
-      return playerSquad.getMonsters().map((monster: Monster, index: number) => {
+      return getMonsters().map((monster: Monster) => {
         let returnMonster = { ...monster }
 
         // Temporary Modifiers are applied
@@ -271,6 +271,16 @@
       return applyUpgrades
     }
 
-    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, newMonsters, reset, upgradedMonsters }
+    function resetTemporaryModifiers() {
+      let resetSquad = getMonsters().map((monster) => {
+        return {
+          ...monster,
+          temporary_modifiers: [],
+        }
+      })
+      setMonsters(resetSquad)
+    }
+
+    return { getMonsters, setMonsters, totalStats, getAllDead, getMonster, setMonster, newMonsters, reset, upgradedMonsters, resetTemporaryModifiers }
   }
 </script>

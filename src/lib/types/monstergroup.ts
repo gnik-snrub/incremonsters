@@ -13,7 +13,8 @@ export type MonsterGroup = {
 
 export type EnemyMonsterGroup = MonsterGroup & {
   newMonsters: (lvl: number, amount: number) => void,
-  upgradedMonster: () => Monster[],
+  upgradedMonsters: () => Monster[],
+  resetTemporaryModifiers: () => void,
 }
 
 export type PlayerMonsterGroup = MonsterGroup & {

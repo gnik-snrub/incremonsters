@@ -63,6 +63,9 @@
       calculatingRewards = true
       battle.battleToggle()
 
+      playerSquad.resetTemporaryModifiers()
+      enemySquad.resetTemporaryModifiers()
+
       let expModifiers = []
       let goldModifiers = []
 
@@ -95,6 +98,8 @@
 
   $effect(() => {
     if (battle.isBattling() && playerSquad.getAllDead()) {
+      playerSquad.resetTemporaryModifiers()
+      enemySquad.resetTemporaryModifiers()
       dungeonLvl.reset()
       battle.reset()
       enemySquad.newMonsters(dungeonLvl.get(), 4)
