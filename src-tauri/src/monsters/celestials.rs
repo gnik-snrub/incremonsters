@@ -46,3 +46,40 @@ impl MonsterType for CelestialType {
         *options.choose(&mut thread_rng()).unwrap()
     }
 }
+
+pub fn get_growth_rate(type_: StonekinType) -> GrowthRates {
+    match type_ {
+        StonekinType::Slateblade => RADIANTHEART_GROWTH_RATE,
+        StonekinType::Pebblebound => AETHERWING_GROWTH_RATE,
+        StonekinType::Bolderfist => HALOSENTINEL_GROWTH_RATE,
+        StonekinType::Mountainheart => DIVINARCH_GROWTH_RATE,
+    }
+}
+
+pub const RADIANTHEART_GROWTH_RATE: GrowthRates = GrowthRates {
+    hp: 1.11,
+    atk: 1.01,
+    def: 1.01,
+    spd: 1.01,
+};
+
+pub const AETHERWING_GROWTH_RATE: GrowthRates = GrowthRates {
+    hp: 1.01,
+    atk: 1.06,
+    def: 1.01,
+    spd: 1.04,
+};
+
+pub const HALOSENTINEL_GROWTH_RATE: GrowthRates = GrowthRates {
+    hp: 1.01,
+    atk: 1.045,
+    def: 1.06,
+    spd: 1.025,
+};
+
+pub const DIVINARCH_GROWTH_RATE: GrowthRates = GrowthRates {
+    hp: 1.035,
+    atk: 1.035,
+    def: 1.035,
+    spd: 1.035,
+};

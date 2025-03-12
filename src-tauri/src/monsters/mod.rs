@@ -1,11 +1,14 @@
+use celestials::CelestialType;
 use stonekin::{ StonekinType, PEBBLEBOUND_GROWTH_RATE, SLATEBLADE_GROWTH_RATE, BOLDERFIST_GROWTH_RATE, MOUNTAINHEART_GROWTH_RATE};
 
 use crate::{math::rewards::{GrowthBoosts, GrowthModifier}, models::Monster};
 
 pub mod stonekin;
+pub mod celestials;
 
 pub enum MonsterFamily {
     Stonekin(Option<StonekinType>),
+    Celestial(Option<CelestialType>)
 }
 
 pub trait MonsterType {
@@ -67,5 +70,7 @@ pub fn generate_monster(family: MonsterFamily) -> Monster {
     match family {
         MonsterFamily::Stonekin(None) => StonekinType::random().generate(),
         MonsterFamily::Stonekin(Some(monster)) => monster.generate(),
+        MonsterFamily::Celestial(None) => CelestialType::random().generate(),
+        MonsterFamily::Celestial(Some(monster)) => monster.generate(),
     }
 }
