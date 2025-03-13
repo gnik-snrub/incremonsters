@@ -1,4 +1,4 @@
-use celestials::CelestialType;
+use celestials::{CelestialType, AETHERWING_GROWTH_RATE, AURENGUARD_GROWTH_RATE, DIVINARCH_GROWTH_RATE, RADIANTHEART_GROWTH_RATE};
 use stonekin::{ StonekinType, PEBBLEBOUND_GROWTH_RATE, SLATEBLADE_GROWTH_RATE, BOLDERFIST_GROWTH_RATE, MOUNTAINHEART_GROWTH_RATE};
 
 use crate::{math::rewards::{GrowthBoosts, GrowthModifier}, models::Monster};
@@ -62,6 +62,11 @@ fn find_growth_rate(monster: Monster) -> GrowthRates {
         "Slateblade" => SLATEBLADE_GROWTH_RATE,
         "Bolderfist" => BOLDERFIST_GROWTH_RATE,
         "Mountainheart" => MOUNTAINHEART_GROWTH_RATE,
+
+        "Radiantheart" => RADIANTHEART_GROWTH_RATE,
+        "Aetherwing" => AETHERWING_GROWTH_RATE,
+        "Aurenguard" => AURENGUARD_GROWTH_RATE,
+        "Divinarch" => DIVINARCH_GROWTH_RATE,
         _ => MISSING_GROWTH_RATE,
     };
     rate

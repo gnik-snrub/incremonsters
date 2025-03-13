@@ -27,7 +27,7 @@ pub fn get_callback(trait_: MonsterTrait) -> CallbackFn {
 
         MonsterTrait::Celestial(CelestialTrait::Radiantheart) => celestials::ward_of_renewal,
         MonsterTrait::Celestial(CelestialTrait::Aetherwing) => celestials::ward_of_vengeance,
-        MonsterTrait::Celestial(CelestialTrait::HaloSentinel) => celestials::ward_of_aegis,
+        MonsterTrait::Celestial(CelestialTrait::Aurenguard) => celestials::ward_of_aegis,
         MonsterTrait::Celestial(CelestialTrait::Divinarch) => celestials::ward_of_sanctification,
     }
 }

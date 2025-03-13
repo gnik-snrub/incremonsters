@@ -12,7 +12,7 @@ use super::MonsterType;
 pub enum CelestialType {
     Radiantheart,
     Aetherwing,
-    HaloSentinel,
+    Aurenguard,
     Divinarch,
 }
 
@@ -29,9 +29,9 @@ impl MonsterType for CelestialType {
                 temp.add_trait(CelestialTrait::Aetherwing.create());
                 temp
             },
-            CelestialType::HaloSentinel => {
-                let mut temp = Monster::new("Celestial", "Halo Sentinel", 100, 17, 20, 13);
-                temp.add_trait(CelestialTrait::HaloSentinel.create());
+            CelestialType::Aurenguard => {
+                let mut temp = Monster::new("Celestial", "Aurenguard", 100, 17, 20, 13);
+                temp.add_trait(CelestialTrait::Aurenguard.create());
                 temp
             },
             CelestialType::Divinarch => {
@@ -42,17 +42,17 @@ impl MonsterType for CelestialType {
         }
     }
     fn random() -> Self {
-        let options = [CelestialType::Radiantheart, CelestialType::Aetherwing, CelestialType::HaloSentinel, CelestialType::Divinarch];
+        let options = [CelestialType::Radiantheart, CelestialType::Aetherwing, CelestialType::Aurenguard, CelestialType::Divinarch];
         *options.choose(&mut thread_rng()).unwrap()
     }
 }
 
-pub fn get_growth_rate(type_: StonekinType) -> GrowthRates {
+pub fn get_growth_rate(type_: CelestialType) -> GrowthRates {
     match type_ {
-        StonekinType::Slateblade => RADIANTHEART_GROWTH_RATE,
-        StonekinType::Pebblebound => AETHERWING_GROWTH_RATE,
-        StonekinType::Bolderfist => HALOSENTINEL_GROWTH_RATE,
-        StonekinType::Mountainheart => DIVINARCH_GROWTH_RATE,
+        CelestialType::Radiantheart => RADIANTHEART_GROWTH_RATE,
+        CelestialType::Aetherwing => AETHERWING_GROWTH_RATE,
+        CelestialType::Aurenguard => AURENGUARD_GROWTH_RATE,
+        CelestialType::Divinarch => DIVINARCH_GROWTH_RATE,
     }
 }
 
@@ -70,7 +70,7 @@ pub const AETHERWING_GROWTH_RATE: GrowthRates = GrowthRates {
     spd: 1.04,
 };
 
-pub const HALOSENTINEL_GROWTH_RATE: GrowthRates = GrowthRates {
+pub const AURENGUARD_GROWTH_RATE: GrowthRates = GrowthRates {
     hp: 1.01,
     atk: 1.045,
     def: 1.06,

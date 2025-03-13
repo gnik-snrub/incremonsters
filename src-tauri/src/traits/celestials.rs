@@ -10,7 +10,7 @@ use super::MonsterTrait::Celestial;
 pub enum CelestialTrait {
     Radiantheart,
     Aetherwing,
-    HaloSentinel,
+    Aurenguard,
     Divinarch,
 }
 
@@ -33,12 +33,12 @@ impl TraitTrait for CelestialTrait {
                     monster: Celestial(CelestialTrait::Aetherwing),
                 }
             }
-            CelestialTrait::HaloSentinel => {
+            CelestialTrait::Aurenguard => {
                 Trait {
                     name: "Ward of Aegis".to_string(),
-                    description: "Halo Sentinel bestows a ward on its allies, granting them passive damage reductions (-15%)".to_string(),
+                    description: "Aurenguard bestows a ward on its allies, granting them passive damage reductions (-15%)".to_string(),
                     trigger: Trigger::OnAttack,
-                    monster: Celestial(CelestialTrait::HaloSentinel),
+                    monster: Celestial(CelestialTrait::Aurenguard),
                 }
             }
             CelestialTrait::Divinarch => {
@@ -60,7 +60,7 @@ impl TraitTrait for CelestialTrait {
             CelestialTrait::Aetherwing => {
                 ward_of_vengeance
             }
-            CelestialTrait::HaloSentinel => {
+            CelestialTrait::Aurenguard => {
                 ward_of_aegis
             }
             CelestialTrait::Divinarch => {
@@ -71,3 +71,57 @@ impl TraitTrait for CelestialTrait {
 }
 
 
+pub fn ward_of_renewal(
+    self_value: Option<Monster>,
+    _opponent: Option<Monster>,
+    allies: Option<Vec<Monster>>,
+    _enemies: Option<Vec<Monster>>,
+    _damage: Option<i32>
+) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
+    let unwrapped_self = self_value.unwrap();
+    let mut unwrapped_allies = allies.unwrap();
+
+    let heal_value = unwrapped_self.damage / 4;
+
+    for ally in &mut unwrapped_allies {
+        if ally.damage >= ally.hp {
+            continue;
+        }
+        ally.damage -= heal_value;
+    }
+
+    (None, None, Some(unwrapped_allies), None, None)
+}
+
+pub fn ward_of_vengeance(
+    self_value: Option<Monster>,
+    _opponent: Option<Monster>,
+    allies: Option<Vec<Monster>>,
+    _enemies: Option<Vec<Monster>>,
+    damage: Option<i32>
+) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
+
+    (None, None, None, None, None)
+}
+
+pub fn ward_of_aegis(
+    self_value: Option<Monster>,
+    _opponent: Option<Monster>,
+    allies: Option<Vec<Monster>>,
+    _enemies: Option<Vec<Monster>>,
+    damage: Option<i32>
+) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
+
+    (None, None, None, None, None)
+}
+
+pub fn ward_of_sanctification(
+    self_value: Option<Monster>,
+    _opponent: Option<Monster>,
+    allies: Option<Vec<Monster>>,
+    _enemies: Option<Vec<Monster>>,
+    damage: Option<i32>
+) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
+
+    (None, None, None, None, None)
+}
