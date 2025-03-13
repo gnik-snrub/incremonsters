@@ -6,6 +6,7 @@ use crate::{math::rewards::{GrowthBoosts, GrowthModifier}, models::Monster};
 pub mod stonekin;
 pub mod celestials;
 
+#[derive(Clone)]
 pub enum MonsterFamily {
     Stonekin(Option<StonekinType>),
     Celestial(Option<CelestialType>)

@@ -1,6 +1,7 @@
 mod models;
 
 use std::fs;
+use rand::seq::SliceRandom;
 
 use models::Monster;
 mod monsters;
@@ -13,7 +14,9 @@ mod traits;
 
 #[tauri::command]
 fn create_monster(lvl: i32) -> Monster {
-    let mut monster = generate_monster(MonsterFamily::Stonekin(None));
+    let monster_options = vec![MonsterFamily::Celestial(None), MonsterFamily::Stonekin(None)];
+    let choice = monster_options.choose(&mut rand::thread_rng()).unwrap();
+    let mut monster = generate_monster(choice.clone());
     for _ in 1..lvl {
         level_up(&mut monster, &GrowthBoosts(vec![], vec![], vec![], vec![]));
     }
