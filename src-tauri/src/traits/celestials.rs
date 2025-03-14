@@ -20,7 +20,7 @@ impl TraitTrait for CelestialTrait {
             CelestialTrait::Radiantheart => {
                 Trait {
                     name: "Ward of Renewal".to_string(),
-                    description: "Radiantheart bestows a ward on its allies, healing them based on its damage taken (25%)".to_string(),
+                    description: "Radiantheart bestows a ward on its allies, healing them based on its damage taken (10%)".to_string(),
                     trigger: Trigger::OnAttack,
                     monster: Celestial(CelestialTrait::Radiantheart),
                 }
@@ -28,7 +28,7 @@ impl TraitTrait for CelestialTrait {
             CelestialTrait::Aetherwing => {
                 Trait {
                     name: "Ward of Vengeance".to_string(),
-                    description: "Aetherwing bestows a ward on its allies, dealing damage to their attackers based on its attack (30%)".to_string(),
+                    description: "Aetherwings bestows a ward on its allies, increasing their attack stat based on their damage taken (10%)".to_string(),
                     trigger: Trigger::OnAttack,
                     monster: Celestial(CelestialTrait::Aetherwing),
                 }
@@ -36,15 +36,15 @@ impl TraitTrait for CelestialTrait {
             CelestialTrait::Aurenguard => {
                 Trait {
                     name: "Ward of Aegis".to_string(),
-                    description: "Aurenguard bestows a ward on its allies, granting them passive damage reductions (-15%)".to_string(),
+                    description: "Aurenguard bestows a ward on its allies, increasing their health based on its damage taken (5%)".to_string(),
                     trigger: Trigger::OnAttack,
                     monster: Celestial(CelestialTrait::Aurenguard),
                 }
             }
             CelestialTrait::Divinarch => {
                 Trait {
-                    name: "Ward of Sanctification".to_string(),
-                    description: "Divinarch bestows a ward on its allies, healing them each turn based on their highest stat (10% - ATK/DEF/SPD)".to_string(),
+                    name: "Ward of Sacrifice".to_string(),
+                    description: "If Divinarch has 90% or more health, it sends out a ward to a dead ally, healing them to 10% of their health, while lowering Divinarchs health the same amount".to_string(),
                     trigger: Trigger::OnAttack,
                     monster: Celestial(CelestialTrait::Divinarch),
                 }
@@ -72,7 +72,7 @@ impl TraitTrait for CelestialTrait {
 
 
 pub fn ward_of_renewal(
-    self_value: Option<Monster>,
+    _self_value: Option<Monster>,
     _opponent: Option<Monster>,
     allies: Option<Vec<Monster>>,
     _enemies: Option<Vec<Monster>>,
@@ -81,12 +81,11 @@ pub fn ward_of_renewal(
     let unwrapped_self = self_value.unwrap();
     let mut unwrapped_allies = allies.unwrap();
 
-    let heal_value = unwrapped_self.damage / 4;
-
     for ally in &mut unwrapped_allies {
         if ally.damage >= ally.hp {
             continue;
         }
+        let heal_value = ally.damage / 10;
         ally.damage -= heal_value;
     }
 
