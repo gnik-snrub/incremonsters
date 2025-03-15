@@ -72,7 +72,7 @@ impl TraitTrait for CelestialTrait {
 
 
 pub fn ward_of_renewal(
-    _self_value: Option<Monster>,
+    self_value: Option<Monster>,
     _opponent: Option<Monster>,
     allies: Option<Vec<Monster>>,
     _enemies: Option<Vec<Monster>>,
@@ -81,12 +81,12 @@ pub fn ward_of_renewal(
     let unwrapped_self = self_value.unwrap();
     let mut unwrapped_allies = allies.unwrap();
 
+    let heal_value = unwrapped_self.damage / 10;
     for ally in &mut unwrapped_allies {
-        if ally.damage >= ally.hp {
+        if ally.damage >= ally.hp + ally.stat_adjustments.hp {
             continue;
         }
-        let heal_value = ally.damage / 10;
-        ally.damage -= heal_value;
+        ally.damage = std::cmp::min( ally.damage + heal_value, ally.hp + ally.stat_adjustments.hp);
     }
 
     (None, None, Some(unwrapped_allies), None, None)
