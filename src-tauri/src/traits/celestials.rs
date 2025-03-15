@@ -28,7 +28,7 @@ impl TraitTrait for CelestialTrait {
             CelestialTrait::Aetherwing => {
                 Trait {
                     name: "Ward of Vengeance".to_string(),
-                    description: "Aetherwings bestows a ward on its allies, increasing their attack stat based on their damage taken (10%)".to_string(),
+                    description: "Aetherwings bestows a ward on its allies, increasing their attack stat based on their damage taken (20%)".to_string(),
                     trigger: Trigger::OnAttack,
                     monster: Celestial(CelestialTrait::Aetherwing),
                 }
@@ -93,14 +93,36 @@ pub fn ward_of_renewal(
 }
 
 pub fn ward_of_vengeance(
-    self_value: Option<Monster>,
+    _self_value: Option<Monster>,
     _opponent: Option<Monster>,
     allies: Option<Vec<Monster>>,
     _enemies: Option<Vec<Monster>>,
     damage: Option<i32>
 ) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
+    let mut unwrapped_allies = allies.unwrap();
 
-    (None, None, None, None, None)
+    for ally in &mut unwrapped_allies {
+        if ally.damage >= ally.hp + ally.stat_adjustments.hp {
+            continue;
+        }
+        let atk_boost = ally.damage / 5;
+        if let Some(idx) = ally.temporary_modifiers.iter().position(|modifier| modifier.source == "ward_of_vengeance".to_string()) {
+            let mut modifier = ally.temporary_modifiers[idx].clone();
+            modifier.mod_value += atk_boost;
+            ally.temporary_modifiers[idx] = modifier;
+        } else {
+            let modifier = TemporaryModifier {
+                source: "ward_of_vengeance".to_string(),
+                mod_type: ModType::ATK,
+                mod_mode: ModMode::Add,
+                mod_value: atk_boost,
+                quantity: 1,
+            };
+            ally.temporary_modifiers.push(modifier);
+        }
+    }
+
+    (None, None, Some(unwrapped_allies), None, None)
 }
 
 pub fn ward_of_aegis(
