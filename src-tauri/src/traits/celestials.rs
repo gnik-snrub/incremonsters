@@ -36,7 +36,7 @@ impl TraitTrait for CelestialTrait {
             CelestialTrait::Aurenguard => {
                 Trait {
                     name: "Ward of Aegis".to_string(),
-                    description: "Aurenguard bestows a ward on its allies, increasing their health based on its damage taken (5%)".to_string(),
+                    description: "Aurenguard bestows a ward on its allies, increasing their defense stat based on their damage taken (20%)".to_string(),
                     trigger: Trigger::OnAttack,
                     monster: Celestial(CelestialTrait::Aurenguard),
                 }
@@ -126,14 +126,36 @@ pub fn ward_of_vengeance(
 }
 
 pub fn ward_of_aegis(
-    self_value: Option<Monster>,
+    _self_value: Option<Monster>,
     _opponent: Option<Monster>,
     allies: Option<Vec<Monster>>,
     _enemies: Option<Vec<Monster>>,
-    damage: Option<i32>
+    _damage: Option<i32>
 ) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
+    let mut unwrapped_allies = allies.unwrap();
 
-    (None, None, None, None, None)
+    for ally in &mut unwrapped_allies {
+        if ally.damage >= ally.hp + ally.stat_adjustments.hp {
+            continue;
+        }
+        let def_boost = ally.damage / 5;
+        if let Some(idx) = ally.temporary_modifiers.iter().position(|modifier| modifier.source == "ward_of_aegis".to_string()) {
+            let mut modifier = ally.temporary_modifiers[idx].clone();
+            modifier.mod_value += def_boost;
+            ally.temporary_modifiers[idx] = modifier;
+        } else {
+            let modifier = TemporaryModifier {
+                source: "ward_of_aegis".to_string(),
+                mod_type: ModType::DEF,
+                mod_mode: ModMode::Add,
+                mod_value: def_boost,
+                quantity: 1,
+            };
+            ally.temporary_modifiers.push(modifier);
+        }
+    }
+
+    (None, None, Some(unwrapped_allies), None, None)
 }
 
 pub fn ward_of_sanctification(
