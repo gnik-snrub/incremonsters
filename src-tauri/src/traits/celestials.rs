@@ -44,8 +44,8 @@ impl TraitTrait for CelestialTrait {
             CelestialTrait::Divinarch => {
                 Trait {
                     name: "Ward of Sacrifice".to_string(),
-                    description: "If Divinarch has 90% or more health, it sends out a ward to a dead ally, healing them to 10% of their health, while lowering Divinarchs health the same amount".to_string(),
-                    trigger: Trigger::OnAttack,
+                    description: "Divinarch bestows a ward on its enemies, lowering their attack based on its damage received (10%)".to_string(),
+                    trigger: Trigger::OnDamage,
                     monster: Celestial(CelestialTrait::Divinarch),
                 }
             }
@@ -159,12 +159,31 @@ pub fn ward_of_aegis(
 }
 
 pub fn ward_of_sanctification(
-    self_value: Option<Monster>,
+    _self_value: Option<Monster>,
     _opponent: Option<Monster>,
-    allies: Option<Vec<Monster>>,
-    _enemies: Option<Vec<Monster>>,
+    _allies: Option<Vec<Monster>>,
+    enemies: Option<Vec<Monster>>,
     damage: Option<i32>
 ) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
+    let mut unwrapped_enemies = enemies.unwrap();
+    let unwrapped_damage = damage.unwrap();
 
-    (None, None, None, None, None)
+    let atk_penalty = unwrapped_damage / 10;
+    for enemy in &mut unwrapped_enemies {
+        if let Some(idx) = enemy.temporary_modifiers.iter().position(|modifier| modifier.source == "ward_of_sanctification".to_string()) {
+            let mut modifier = enemy.temporary_modifiers[idx].clone();
+            modifier.mod_value += std::cmp::min(atk_penalty, enemy.atk + enemy.stat_adjustments.atk);
+            enemy.temporary_modifiers[idx] = modifier;
+        } else {
+            let modifier = TemporaryModifier {
+                source: "ward_of_sanctification".to_string(),
+                mod_type: ModType::ATK,
+                mod_mode: ModMode::Sub,
+                mod_value: atk_penalty,
+                quantity: 1,
+            };
+            enemy.temporary_modifiers.push(modifier);
+        }
+    }
+    (None, None, None, Some(unwrapped_enemies), None)
 }
