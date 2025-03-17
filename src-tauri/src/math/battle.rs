@@ -258,8 +258,6 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
             }
         }
     }
-    println!("player: {:?}", player);
-    println!("enemy: {:?}", enemy);
     [player, enemy]
 }
 
@@ -280,6 +278,7 @@ fn adjust_for_temporary_modifiers(monster: &Monster) -> StatAdjustments {
     let mut atk = 0;
     let mut def = 0;
     let mut spd = 0;
+    let mut dmg = 0;
     for t in &monster.temporary_modifiers {
         match t.mod_type {
             ModType::HP => {
@@ -294,10 +293,13 @@ fn adjust_for_temporary_modifiers(monster: &Monster) -> StatAdjustments {
             ModType::SPD => {
                 spd = adjust_by_type(spd, t.mod_value, &t.mod_mode);
             },
+            ModType::DMG => {
+                dmg = adjust_by_type(dmg, t.mod_value, &t.mod_mode);
+            },
         }
     }
     StatAdjustments {
-        hp, atk, def, spd
+        hp, atk, def, spd, dmg
     }
 }
 

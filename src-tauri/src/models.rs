@@ -27,7 +27,8 @@ pub struct StatAdjustments {
     pub hp: i32,
     pub atk: i32,
     pub def: i32,
-    pub spd: i32
+    pub spd: i32,
+    pub dmg: i32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
@@ -44,6 +45,7 @@ pub enum ModType {
   ATK,
   DEF,
   SPD,
+  DMG,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
@@ -105,7 +107,8 @@ impl Monster {
                 hp: 0,
                 atk: 0,
                 def: 0,
-                spd: 0
+                spd: 0,
+                dmg: 0,
             }
         }
     }
