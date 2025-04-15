@@ -1,4 +1,4 @@
-use crate::models::{ModMode, ModType, Monster, StatAdjustments, Trigger};
+use crate::models::{ModMode, ModType, ModifierKind, Monster, StatAdjustments, StatusEffect, TemporaryModifier, Trigger};
 use serde::{Deserialize, Serialize};
 use rand::seq::SliceRandom;
 use rand::random;
@@ -111,6 +111,11 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
     let ordered: Vec<(i32, String, usize)> = get_speed_order(&player, &enemy, speed_mod);
     for (_, side, index) in ordered {
         if side == "player" {
+            let mut logs = process_status_effects(&mut player[index]);
+            if is_stunned(&player[index]) || is_frozen(&player[index]) {
+                continue;
+            }
+
             player[index].stat_adjustments = adjust_for_temporary_modifiers(&player[index]);
             match get_target(&enemy) {
                 Some(target_idx) => {
@@ -127,6 +132,14 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
                     enemy[target_idx] = attack_tuple.1;
                     player = attack_tuple.2;
                     enemy = attack_tuple.3;
+
+                    if is_blind(&player[index]) && rand::random::<bool>() {
+                        logs.push(format!("{} is blinded and misses the attack!", player[index].name));
+                        if enemy[target_idx].damage > enemy[target_idx].hp + enemy[target_idx].stat_adjustments.hp {
+                            enemy[target_idx].damage = enemy[target_idx].hp;
+                        }
+                        continue;
+                    }
 
                     // Damage calculation
                     let mut damage: i32 = damage_calculation(((player[index].atk + player[index].stat_adjustments.atk) as f32 * attack_mod) as i32,
@@ -185,6 +198,11 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
                 None => continue,
             }
         } else {
+            let mut logs = process_status_effects(&mut enemy[index]);
+            if is_stunned(&player[index]) || is_frozen(&enemy[index]) {
+                continue;
+            }
+
             match get_target(&player) {
                 Some(target_idx) => {
                     // OnAttack trait triggers
@@ -199,6 +217,14 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
                     player[target_idx] = attack_tuple.1;
                     enemy = attack_tuple.2;
                     player = attack_tuple.3;
+
+                    if is_blind(&player[index]) && rand::random::<bool>() {
+                        logs.push(format!("{} is blinded and misses the attack!", enemy[index].name));
+                        if player[target_idx].damage as f32 > (player[target_idx].hp + player[target_idx].stat_adjustments.hp) as f32 * hp_mod {
+                            player[target_idx].damage = player[target_idx].hp;
+                        }
+                        continue;
+                    }
 
                     // Damage calculation
                     let mut damage: i32 = damage_calculation(enemy[index].atk + enemy[index].stat_adjustments.atk,
@@ -280,22 +306,23 @@ fn adjust_for_temporary_modifiers(monster: &Monster) -> StatAdjustments {
     let mut spd = 0;
     let mut dmg = 0;
     for t in &monster.temporary_modifiers {
-        match t.mod_type {
-            ModType::HP => {
-                hp = adjust_by_type(hp, t.mod_value, &t.mod_mode);
+        match (&t.mod_type, t.mod_value, &t.mod_mode) {
+            (&Some(ModType::HP), Some(value), Some(mode)) => {
+                hp = adjust_by_type(hp, value, mode);
             },
-            ModType::ATK => {
-                atk = adjust_by_type(atk, t.mod_value, &t.mod_mode);
+            (&Some(ModType::ATK), Some(value), Some(mode)) => {
+                atk = adjust_by_type(hp, value, mode);
             },
-            ModType::DEF => {
-                def = adjust_by_type(def, t.mod_value, &t.mod_mode);
+            (&Some(ModType::DEF), Some(value), Some(mode)) => {
+                def = adjust_by_type(def, value, mode);
             },
-            ModType::SPD => {
-                spd = adjust_by_type(spd, t.mod_value, &t.mod_mode);
+            (&Some(ModType::SPD), Some(value), Some(mode)) => {
+                spd = adjust_by_type(spd, value, mode);
             },
-            ModType::DMG => {
-                dmg = adjust_by_type(dmg, t.mod_value, &t.mod_mode);
+            (&Some(ModType::DMG), Some(value), Some(mode)) => {
+                dmg = adjust_by_type(dmg, value, mode);
             },
+            _ => {},
         }
     }
     StatAdjustments {
@@ -318,4 +345,89 @@ fn adjust_by_type(stat: i32, value: i32, mod_mode: &ModMode) -> i32 {
             stat * value
         },
     }
+}
+
+pub fn process_status_effects(monster: &mut Monster) -> Vec<String> {
+    let mut logs = Vec::new();
+    let mut to_remove = Vec::new();
+    let mut to_add = Vec::new();
+
+    for (i, modifier) in monster.temporary_modifiers.iter_mut().enumerate() {
+        if let ModifierKind::Status(effect) = &modifier.kind {
+            match effect {
+                StatusEffect::Poison => {
+                    let dmg = (monster.hp as f32 * 0.05).ceil() as i32;
+                    monster.damage += dmg;
+                    logs.push(format!("{} takes {} poison damage!", monster.name, dmg));
+                },
+                StatusEffect::Burn => {
+                    let dmg = (monster.hp as f32 * 0.03).ceil() as i32;
+                    monster.damage += dmg;
+                    logs.push(format!("{} is burned for {} damage!", monster.name, dmg));
+
+                    to_add.push(TemporaryModifier {
+                        source: "burn_debuff".to_string(),
+                        kind: ModifierKind::Stat,
+                        mod_type: Some(ModType::ATK),
+                        mod_mode: Some(ModMode::Sub),
+                        mod_value: Some((monster.atk as f32 * 0.1).ceil() as i32),
+                        quantity: 1,
+                    });
+                }
+                StatusEffect::Freeze => {
+                    logs.push(format!("{} is frozen solid!", monster.name));
+
+                    to_add.push(TemporaryModifier {
+                        source: "burn_debuff".to_string(),
+                        kind: ModifierKind::Stat,
+                        mod_type: Some(ModType::SPD),
+                        mod_mode: Some(ModMode::Sub),
+                        mod_value: Some((monster.spd as f32 * 0.1).ceil() as i32),
+                        quantity: 1,
+                    });
+                }
+                StatusEffect::Stun => {
+                    logs.push(format!("{} is stunned, and can't act this turn!", monster.name));
+                }
+                StatusEffect::Blind => {
+                    logs.push(format!("{} is blinded, and may miss!", monster.name));
+                }
+            }
+
+            modifier.quantity -= 1;
+            if modifier.quantity <= 0 {
+                to_remove.push(i);
+                logs.push(format!("{}'s {:?} has worn off.", monster.name, effect));
+            }
+        }
+
+    }
+
+    for modifier in to_add.into_iter() {
+        monster.temporary_modifiers.push(modifier);
+    }
+
+    for i in to_remove.iter().rev() {
+        monster.temporary_modifiers.remove(*i);
+    }
+
+    logs
+}
+
+pub fn has_status(monster: &Monster, target: StatusEffect) -> bool {
+    monster.temporary_modifiers.iter().any(|m| {
+        matches!(&m.kind, ModifierKind::Status(e) if e == &target)
+    })
+}
+
+pub fn is_stunned(monster:&Monster) -> bool {
+    has_status(monster, StatusEffect::Stun)
+}
+
+pub fn is_frozen(monster:&Monster) -> bool {
+    has_status(monster, StatusEffect::Freeze)
+}
+
+pub fn is_blind(monster:&Monster) -> bool {
+    has_status(monster, StatusEffect::Blind)
 }

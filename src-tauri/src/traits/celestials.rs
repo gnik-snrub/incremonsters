@@ -2,7 +2,7 @@ use rand::{Rng, thread_rng};
 use serde::{Deserialize, Serialize};
 
 use super::{MonsterTrait, Trait, TraitTrait};
-use crate::{math::battle::damage_calculation, models::{CallbackFn, ModMode, ModType, Monster, TemporaryModifier, Trigger}};
+use crate::{math::battle::damage_calculation, models::{CallbackFn, ModMode, ModType, ModifierKind, Monster, TemporaryModifier, Trigger}};
 
 use super::MonsterTrait::Celestial;
 
@@ -108,14 +108,17 @@ pub fn ward_of_vengeance(
         let atk_boost = ally.damage / 5;
         if let Some(idx) = ally.temporary_modifiers.iter().position(|modifier| modifier.source == "ward_of_vengeance".to_string()) {
             let mut modifier = ally.temporary_modifiers[idx].clone();
-            modifier.mod_value += atk_boost;
+            if let Some(val) = modifier.mod_value.as_mut() {
+                *val += atk_boost;
+            }
             ally.temporary_modifiers[idx] = modifier;
         } else {
             let modifier = TemporaryModifier {
                 source: "ward_of_vengeance".to_string(),
-                mod_type: ModType::ATK,
-                mod_mode: ModMode::Add,
-                mod_value: atk_boost,
+                kind: ModifierKind::Stat,
+                mod_type: Some(ModType::ATK),
+                mod_mode: Some(ModMode::Add),
+                mod_value: Some(atk_boost),
                 quantity: 1,
             };
             ally.temporary_modifiers.push(modifier);
@@ -141,14 +144,17 @@ pub fn ward_of_aegis(
         let def_boost = ally.damage / 5;
         if let Some(idx) = ally.temporary_modifiers.iter().position(|modifier| modifier.source == "ward_of_aegis".to_string()) {
             let mut modifier = ally.temporary_modifiers[idx].clone();
-            modifier.mod_value += def_boost;
+            if let Some(val) = modifier.mod_value.as_mut() {
+                *val += def_boost;
+            }
             ally.temporary_modifiers[idx] = modifier;
         } else {
             let modifier = TemporaryModifier {
                 source: "ward_of_aegis".to_string(),
-                mod_type: ModType::DEF,
-                mod_mode: ModMode::Add,
-                mod_value: def_boost,
+                kind: ModifierKind::Stat,
+                mod_type: Some(ModType::DEF),
+                mod_mode: Some(ModMode::Add),
+                mod_value: Some(def_boost),
                 quantity: 1,
             };
             ally.temporary_modifiers.push(modifier);
@@ -172,14 +178,17 @@ pub fn ward_of_sanctification(
     for enemy in &mut unwrapped_enemies {
         if let Some(idx) = enemy.temporary_modifiers.iter().position(|modifier| modifier.source == "ward_of_sanctification".to_string()) {
             let mut modifier = enemy.temporary_modifiers[idx].clone();
-            modifier.mod_value += std::cmp::min(atk_penalty, enemy.atk + enemy.stat_adjustments.atk);
+            if let Some(val) = modifier.mod_value.as_mut() {
+                *val += std::cmp::min(atk_penalty, enemy.atk + enemy.stat_adjustments.atk);
+            }
             enemy.temporary_modifiers[idx] = modifier;
         } else {
             let modifier = TemporaryModifier {
                 source: "ward_of_sanctification".to_string(),
-                mod_type: ModType::ATK,
-                mod_mode: ModMode::Sub,
-                mod_value: atk_penalty,
+                kind: ModifierKind::Stat,
+                mod_type: Some(ModType::ATK),
+                mod_mode: Some(ModMode::Sub),
+                mod_value: Some(atk_penalty),
                 quantity: 1,
             };
             enemy.temporary_modifiers.push(modifier);

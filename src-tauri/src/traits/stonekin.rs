@@ -2,7 +2,7 @@ use rand::{Rng, thread_rng};
 use serde::{Deserialize, Serialize};
 
 use super::{MonsterTrait, Trait, TraitTrait};
-use crate::{math::battle::damage_calculation, models::{CallbackFn, ModMode, ModType, Monster, TemporaryModifier, Trigger}};
+use crate::{math::battle::damage_calculation, models::{CallbackFn, ModMode, ModType, ModifierKind, Monster, TemporaryModifier, Trigger}};
 
 use super::MonsterTrait::Stonekin;
 
@@ -107,14 +107,17 @@ pub fn quaking_dodge(
             if let Some(idx) = enemy.temporary_modifiers.iter().position(|modifier| modifier.source == "quaking_dodge".to_string()) {
                 let mut modifier = enemy.temporary_modifiers[idx].clone();
                 modifier.quantity += 1;
-                modifier.mod_value = (enemy.def + enemy.stat_adjustments.def) / (modifier.quantity * 20);
+                if let Some(val) = modifier.mod_value.as_mut() {
+                    *val = (enemy.def + enemy.stat_adjustments.def) / (modifier.quantity * 20);
+                }
                 enemy.temporary_modifiers[idx] = modifier;
             } else {
                 let modifier = TemporaryModifier {
                     source: "quaking_dodge".to_string(),
-                    mod_type: ModType::DEF,
-                    mod_mode: ModMode::Sub,
-                    mod_value: (enemy.def + enemy.stat_adjustments.def) / 20 | 1,
+                    kind: ModifierKind::Stat,
+                    mod_type: Some(ModType::DEF),
+                    mod_mode: Some(ModMode::Sub),
+                    mod_value: Some((enemy.def + enemy.stat_adjustments.def) / 20 | 1),
                     quantity: 1,
                 };
                 enemy.temporary_modifiers.push(modifier);
@@ -140,14 +143,17 @@ pub fn shared_earth_armor(
         if let Some(idx) = ally.temporary_modifiers.iter().position(|modifier| modifier.source == "shared_earth".to_string()) {
             let mut modifier = ally.temporary_modifiers[idx].clone();
             modifier.quantity += 1;
-            modifier.mod_value = def_bonus;
+            if let Some(val) = modifier.mod_value.as_mut() {
+                *val = def_bonus;
+            }
             ally.temporary_modifiers[idx] = modifier;
         } else {
             let modifier = TemporaryModifier {
                 source: "shared_earth".to_string(),
-                mod_type: ModType::DEF,
-                mod_mode: ModMode::Add,
-                mod_value: def_bonus,
+                kind: ModifierKind::Stat,
+                mod_type: Some(ModType::DEF),
+                mod_mode: Some(ModMode::Add),
+                mod_value: Some(def_bonus),
                 quantity: 1,
             };
             ally.temporary_modifiers.push(modifier);
