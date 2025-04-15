@@ -51,10 +51,26 @@ pub enum ModType {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
 pub struct TemporaryModifier {
     pub source: String,
-    pub mod_type: ModType,
-    pub mod_mode: ModMode,
-    pub mod_value: i32,
+    pub kind: ModifierKind,
+    pub mod_type: Option<ModType>,
+    pub mod_mode: Option<ModMode>,
+    pub mod_value: Option<i32>,
     pub quantity: i32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
+pub enum ModifierKind {
+    Stat,
+    Status(StatusEffect),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
+pub enum StatusEffect {
+    Poison,
+    Burn,
+    Freeze,
+    Stun,
+    Blind,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
