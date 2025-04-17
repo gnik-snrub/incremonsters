@@ -37,13 +37,14 @@ fn get_exp(player_team_size: i32, average_team_level: i32, slain: Monster) -> i3
     exp as i32
 }
 
-fn calc_level_up(mut player: Vec<Monster>, exp: i32, growth_boosts: GrowthBoosts) -> Vec<Monster> {
+fn calc_level_up(mut player: Vec<Monster>, exp: i32, growth_boosts: GrowthBoosts, logs: &mut Vec<String>) -> Vec<Monster> {
     for mut monster in player.iter_mut() {
         let mut monsters_exp: i32 = exp + monster.exp;
         monster.exp = 0;
         while monsters_exp >= monster.lvl.pow(3) {
             monsters_exp -= monster.lvl.pow(3);
             level_up(&mut monster, &growth_boosts);
+            logs.push(format!("{} leveled up!", monster.name));
         }
         monster.exp = std::cmp::max(monsters_exp, 0);
     }
@@ -85,11 +86,13 @@ pub fn win_battle_rewards(
     mut player: Vec<Monster>,
     enemy: Vec<Monster>,
     reward_modifiers: ModifierCollection,
-) -> (Vec<Monster>, i32) {
+    mut logs: Vec<String>,
+) -> (Vec<Monster>, i32, Vec<String>) {
     let gold_boosts = reward_modifiers.gold;
     let exp_boosts = reward_modifiers.exp;
-    let growth_boosts: GrowthBoosts = GrowthBoosts(reward_modifiers.hp, reward_modifiers.atk, reward_modifiers.def, reward_modifiers.spd);
     let rewards: i32 = get_rewards(dungeon_lvl, &enemy, gold_boosts);
+    logs.push(format!("You gained {} gold!", rewards));
+    let growth_boosts: GrowthBoosts = GrowthBoosts(reward_modifiers.hp, reward_modifiers.atk, reward_modifiers.def, reward_modifiers.spd);
     let mut exp_total: i32 = 0;
     let average_team_level: i32 = if player.is_empty() {
         1
@@ -106,6 +109,7 @@ pub fn win_battle_rewards(
             exp_total = (exp_total as f32 * ((1.0 + boost.magnitude).powf(boost.quantity as f32))) as i32;
         }
     }
-    player = calc_level_up(player, exp_total, growth_boosts);
-    (player, rewards)
+    logs.push(format!("Your team gained {} experience points!", exp_total));
+    player = calc_level_up(player, exp_total, growth_boosts, &mut logs);
+    (player, rewards, logs)
 }

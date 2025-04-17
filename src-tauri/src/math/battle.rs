@@ -103,7 +103,8 @@ fn calculate_modifier(mods: Vec<GlobalModifier>) -> f32 {
 
 
 #[tauri::command]
-pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifiers: GlobalModifiers) -> [Vec<Monster>; 2] {
+pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifiers: GlobalModifiers, mut logs: Vec<String>) -> ([Vec<Monster>; 2], Vec<String>) {
+    let mut logs = Vec::new();
     let attack_mod = calculate_modifier(global_modifiers.atk);
     let defense_mod = calculate_modifier(global_modifiers.def);
     let speed_mod = calculate_modifier(global_modifiers.spd);
@@ -111,7 +112,7 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
     let ordered: Vec<(i32, String, usize)> = get_speed_order(&player, &enemy, speed_mod);
     for (_, side, index) in ordered {
         if side == "player" {
-            let mut logs = process_status_effects(&mut player[index]);
+            process_status_effects(&mut player[index], &mut logs);
             if is_stunned(&player[index]) || is_frozen(&player[index]) {
                 continue;
             }
@@ -125,7 +126,7 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
                         attack_trigger_opponent,
                         attack_trigger_player,
                         attack_trigger_enemy,
-                        damage_not_yet_created) = player[index].trigger_traits(Trigger::OnAttack, &Some(enemy[target_idx].clone()), Some(player.clone()), Some(enemy.clone()), None);
+                        damage_not_yet_created) = player[index].trigger_traits(Trigger::OnAttack, &Some(enemy[target_idx].clone()), Some(player.clone()), Some(enemy.clone()), None, &mut logs);
                     let attack_tuple = unwrap_trigger_options((player[index].clone(), enemy[target_idx].clone(), player.clone(), enemy.clone(), 0),
                         (attack_trigger_self, attack_trigger_opponent, attack_trigger_player, attack_trigger_enemy, damage_not_yet_created));
                     player[index] = attack_tuple.0;
@@ -150,7 +151,7 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
                         hit_trigger_opponent,
                         hit_trigger_player,
                         hit_trigger_enemy,
-                        hit_trigger_damage) = player[index].trigger_traits(Trigger::OnHit, &Some(enemy[target_idx].clone()), Some(player.clone()), Some(enemy.clone()), Some(damage));
+                        hit_trigger_damage) = player[index].trigger_traits(Trigger::OnHit, &Some(enemy[target_idx].clone()), Some(player.clone()), Some(enemy.clone()), Some(damage), &mut logs);
                     let hit_tuple = unwrap_trigger_options((player[index].clone(), enemy[target_idx].clone(), player.clone(), enemy.clone(), damage),
                         (hit_trigger_self, hit_trigger_opponent, hit_trigger_player, hit_trigger_enemy, hit_trigger_damage));
                     player[index] = hit_tuple.0;
@@ -164,7 +165,7 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
                         defend_trigger_opponent,
                         defend_trigger_player,
                         defend_trigger_enemy,
-                        defend_trigger_damage) = player[index].trigger_traits(Trigger::OnDefend, &Some(enemy[target_idx].clone()), Some(player.clone()), Some(enemy.clone()), Some(damage));
+                        defend_trigger_damage) = player[index].trigger_traits(Trigger::OnDefend, &Some(enemy[target_idx].clone()), Some(player.clone()), Some(enemy.clone()), Some(damage), &mut logs);
                     let defend_tuple = unwrap_trigger_options((player[index].clone(), enemy[target_idx].clone(), player.clone(), enemy.clone(), damage),
                         (defend_trigger_self, defend_trigger_opponent, defend_trigger_player, defend_trigger_enemy, defend_trigger_damage));
                     player[index] = defend_tuple.0;
@@ -181,7 +182,7 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
                         damage_trigger_opponent,
                         damage_trigger_player,
                         damage_trigger_enemy,
-                        damage_trigger_damage) = player[index].trigger_traits(Trigger::OnDamage, &Some(enemy[target_idx].clone()), Some(player.clone()), Some(enemy.clone()), Some(damage));
+                        damage_trigger_damage) = player[index].trigger_traits(Trigger::OnDamage, &Some(enemy[target_idx].clone()), Some(player.clone()), Some(enemy.clone()), Some(damage), &mut logs);
                     let damage_tuple = unwrap_trigger_options((player[index].clone(), enemy[target_idx].clone(), player.clone(), enemy.clone(), damage),
                         (damage_trigger_self, damage_trigger_opponent, damage_trigger_player, damage_trigger_enemy, damage_trigger_damage));
                     player[index] = damage_tuple.0;
@@ -198,7 +199,7 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
                 None => continue,
             }
         } else {
-            let mut logs = process_status_effects(&mut enemy[index]);
+            process_status_effects(&mut enemy[index], &mut logs);
             if is_stunned(&player[index]) || is_frozen(&enemy[index]) {
                 continue;
             }
@@ -210,7 +211,7 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
                         attack_trigger_opponent,
                         attack_trigger_player,
                         attack_trigger_enemy,
-                        damage_not_yet_created) = enemy[index].trigger_traits(Trigger::OnAttack, &Some(player[target_idx].clone()), Some(enemy.clone()), Some(player.clone()), None);
+                        damage_not_yet_created) = enemy[index].trigger_traits(Trigger::OnAttack, &Some(player[target_idx].clone()), Some(enemy.clone()), Some(player.clone()), None, &mut logs);
                     let attack_tuple = unwrap_trigger_options((enemy[index].clone(), player[target_idx].clone(), enemy.clone(), player.clone(), 0),
                         (attack_trigger_self, attack_trigger_opponent, attack_trigger_player, attack_trigger_enemy, damage_not_yet_created));
                     enemy[index] = attack_tuple.0;
@@ -235,7 +236,7 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
                         hit_trigger_opponent,
                         hit_trigger_player,
                         hit_trigger_enemy,
-                        hit_trigger_damage) = enemy[index].trigger_traits(Trigger::OnAttack, &Some(player[target_idx].clone()), Some(enemy.clone()), Some(player.clone()), None);
+                        hit_trigger_damage) = enemy[index].trigger_traits(Trigger::OnAttack, &Some(player[target_idx].clone()), Some(enemy.clone()), Some(player.clone()), None, &mut logs);
                     let hit_tuple = unwrap_trigger_options((enemy[index].clone(), player[target_idx].clone(), enemy.clone(), player.clone(), damage),
                         (hit_trigger_self, hit_trigger_opponent, hit_trigger_player, hit_trigger_enemy, hit_trigger_damage));
                     enemy[index] = hit_tuple.0;
@@ -249,7 +250,7 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
                         defend_trigger_opponent,
                         defend_trigger_player,
                         defend_trigger_enemy,
-                        defend_trigger_damage) = enemy[index].trigger_traits(Trigger::OnAttack, &Some(player[target_idx].clone()), Some(enemy.clone()), Some(player.clone()), None);
+                        defend_trigger_damage) = enemy[index].trigger_traits(Trigger::OnAttack, &Some(player[target_idx].clone()), Some(enemy.clone()), Some(player.clone()), None, &mut logs);
                     let defend_tuple = unwrap_trigger_options((enemy[index].clone(), player[target_idx].clone(), enemy.clone(), player.clone(), damage),
                         (defend_trigger_self, defend_trigger_opponent, defend_trigger_player, defend_trigger_enemy, defend_trigger_damage));
                     enemy[index] = defend_tuple.0;
@@ -266,7 +267,7 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
                         damage_trigger_opponent,
                         damage_trigger_player,
                         damage_trigger_enemy,
-                        damage_trigger_damage) = enemy[index].trigger_traits(Trigger::OnAttack, &Some(player[target_idx].clone()), Some(enemy.clone()), Some(player.clone()), None);
+                        damage_trigger_damage) = enemy[index].trigger_traits(Trigger::OnAttack, &Some(player[target_idx].clone()), Some(enemy.clone()), Some(player.clone()), None, &mut logs);
                     let damage_tuple = unwrap_trigger_options((enemy[index].clone(), player[target_idx].clone(), enemy.clone(), player.clone(), damage),
                         (damage_trigger_self, damage_trigger_opponent, damage_trigger_player, damage_trigger_enemy, damage_trigger_damage));
                     enemy[index] = damage_tuple.0;
@@ -284,7 +285,8 @@ pub fn battle(mut player: Vec<Monster>, mut enemy: Vec<Monster>, global_modifier
             }
         }
     }
-    [player, enemy]
+    let return_logs = logs.clone();
+    ([player, enemy], return_logs)
 }
 
 fn unwrap_trigger_options(mut original: (Monster, Monster, Vec<Monster>, Vec<Monster>, i32),
@@ -347,8 +349,7 @@ fn adjust_by_type(stat: i32, value: i32, mod_mode: &ModMode) -> i32 {
     }
 }
 
-pub fn process_status_effects(monster: &mut Monster) -> Vec<String> {
-    let mut logs = Vec::new();
+pub fn process_status_effects(monster: &mut Monster, logs: &mut Vec<String>) {
     let mut to_remove = Vec::new();
     let mut to_add = Vec::new();
 
@@ -411,7 +412,6 @@ pub fn process_status_effects(monster: &mut Monster) -> Vec<String> {
         monster.temporary_modifiers.remove(*i);
     }
 
-    logs
 }
 
 pub fn has_status(monster: &Monster, target: StatusEffect) -> bool {
