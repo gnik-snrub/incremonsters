@@ -76,7 +76,7 @@ pub fn ward_of_renewal(
     _opponent: Option<Monster>,
     allies: Option<Vec<Monster>>,
     _enemies: Option<Vec<Monster>>,
-    _damage: Option<i32>
+    _damage: Option<i32>,
 ) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
     let unwrapped_self = self_value.unwrap();
     let mut unwrapped_allies = allies.unwrap();
@@ -97,7 +97,7 @@ pub fn ward_of_vengeance(
     _opponent: Option<Monster>,
     allies: Option<Vec<Monster>>,
     _enemies: Option<Vec<Monster>>,
-    damage: Option<i32>
+    _damage: Option<i32>,
 ) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
     let mut unwrapped_allies = allies.unwrap();
 
@@ -133,7 +133,7 @@ pub fn ward_of_aegis(
     _opponent: Option<Monster>,
     allies: Option<Vec<Monster>>,
     _enemies: Option<Vec<Monster>>,
-    _damage: Option<i32>
+    _damage: Option<i32>,
 ) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
     let mut unwrapped_allies = allies.unwrap();
 
@@ -169,7 +169,7 @@ pub fn ward_of_sanctification(
     _opponent: Option<Monster>,
     _allies: Option<Vec<Monster>>,
     enemies: Option<Vec<Monster>>,
-    damage: Option<i32>
+    damage: Option<i32>,
 ) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
     let mut unwrapped_enemies = enemies.unwrap();
     let unwrapped_damage = damage.unwrap();

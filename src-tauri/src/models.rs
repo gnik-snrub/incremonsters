@@ -92,7 +92,7 @@ pub type CallbackFn = fn(
 ) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>);
 
 fn default_callback() -> CallbackFn {
-    |_: Option<Monster>, _: Option<Monster>, _: Option<Vec<Monster>>, _: Option<Vec<Monster>>, _: Option<i32>| (None, None, None, None, None)
+    |_: Option<Monster>, _: Option<Monster>, _: Option<Vec<Monster>>, _: Option<Vec<Monster>>, _: Option<i32> | (None, None, None, None, None)
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]
@@ -140,6 +140,7 @@ impl Monster {
         allies: Option<Vec<Monster>>,
         enemies: Option<Vec<Monster>>,
         damage: Option<i32>,
+        logs: &mut Vec<String>,
     ) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
         let mut current_self = Some(self.clone());
         let mut current_opponent = opponent.clone();
@@ -150,6 +151,7 @@ impl Monster {
         for trait_ in self.clone().traits {
             if trait_.trigger == trigger {
                 let callback = get_callback(trait_.monster);
+                logs.push(format!("{}'s {} trait was activated!", self.name, trait_.name));
                 let (new_self,
                     new_opponent,
                     new_allies,
@@ -180,7 +182,6 @@ impl Monster {
 
             }
         }
-
         (current_self, current_opponent, current_allies, current_enemies, current_damage)
     }
 }

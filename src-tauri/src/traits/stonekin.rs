@@ -75,13 +75,14 @@ pub fn cliffs_edge(
     _opponent: Option<Monster>,
     _allies: Option<Vec<Monster>>,
     _enemies: Option<Vec<Monster>>,
-    damage: Option<i32>
+    damage: Option<i32>,
 ) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
-    let mut unwrapped_damage = damage.unwrap();
+    let unwrapped_damage = damage.unwrap();
     let unwrapped_self = self_value.unwrap();
-    unwrapped_damage += (unwrapped_self.def + unwrapped_self.stat_adjustments.def) / 2;
+    let damage_buff = (unwrapped_self.def + unwrapped_self.stat_adjustments.def) / 2;
 
-    (None, None, None, None, Some(unwrapped_damage))
+
+    (None, None, None, None, Some(unwrapped_damage + damage_buff))
 }
 
 pub fn quaking_dodge(
@@ -89,7 +90,7 @@ pub fn quaking_dodge(
     opponent: Option<Monster>,
     _allies: Option<Vec<Monster>>,
     enemies: Option<Vec<Monster>>,
-    damage: Option<i32>
+    damage: Option<i32>,
 ) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
     let unwrapped_self = self_value.unwrap();
     let unwrapped_opponent = opponent.unwrap();
@@ -123,7 +124,7 @@ pub fn quaking_dodge(
                 enemy.temporary_modifiers.push(modifier);
             }
         }
-    }
+    } 
 
     (None, None, None, Some(unwrapped_enemies), Some(unwrapped_damage))
 }
@@ -133,7 +134,7 @@ pub fn shared_earth_armor(
     _opponent: Option<Monster>,
     allies: Option<Vec<Monster>>,
     _enemies: Option<Vec<Monster>>,
-    _damage: Option<i32>
+    _damage: Option<i32>,
 ) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
     let unwrapped_self = self_value.unwrap();
     let mut unwrapped_allies = allies.unwrap();
@@ -168,7 +169,7 @@ pub fn titanic_retaliation(
     _opponent: Option<Monster>,
     _allies: Option<Vec<Monster>>,
     enemies: Option<Vec<Monster>>,
-    _damage: Option<i32>
+    _damage: Option<i32>,
 ) -> (Option<Monster>, Option<Monster>, Option<Vec<Monster>>, Option<Vec<Monster>>, Option<i32>) {
     let unwrapped_self = self_value.unwrap();
     let mut unwrapped_enemies = enemies.unwrap();
