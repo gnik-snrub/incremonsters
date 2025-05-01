@@ -1,3 +1,5 @@
+use rand::Rng;
+
 
 #[derive(Debug)]
 struct RGBAValue {
@@ -46,8 +48,48 @@ pub fn collect_image_data() {
                 };
                 image_data.pixels.push(new_pixel);
             }
-            println!("Image: {:?}", image_data);
+            let centroids = initialize_centroids(image_data, 30);
         }
         Err(e) => {println!("Error: Image not ok: {:?}", e)},
     }
+}
+
+fn initialize_centroids(image: ImageData, k: i32) -> Vec<RGBAValue> {
+    let mut rng = rand::thread_rng();
+    let mut sampled_pixels: Vec<(usize, usize)> = vec![];
+    let mut centroids = vec![];
+    let max_samples = 20;
+
+    for _ in 0..k {
+        let mut rand_x = rng.gen_range(0..image.width);
+        let mut rand_y = rng.gen_range(0..image.height);
+        let mut sample_attempts = 1;
+
+        loop {
+            if !sampled_pixels.contains(&(rand_x, rand_y)) {
+                sampled_pixels.push((rand_x, rand_y));
+                break;
+            }
+            if sample_attempts >= max_samples {
+                break;
+            }
+            rand_x = rng.gen_range(0..image.width);
+            rand_y = rng.gen_range(0..image.height);
+            sample_attempts += 1;
+        }
+
+        let pixel = image.get_pixel(rand_x, rand_y);
+
+        let centroid = RGBAValue {
+            r: pixel.r,
+            g: pixel.g,
+            b: pixel.b,
+            a: 255,
+        };
+
+        centroids.push(centroid);
+    }
+
+
+    centroids
 }
