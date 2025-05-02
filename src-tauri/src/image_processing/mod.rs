@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use rand::Rng;
 
 
@@ -56,7 +58,7 @@ pub fn collect_image_data() {
 
 fn initialize_centroids(image: ImageData, k: i32) -> Vec<RGBAValue> {
     let mut rng = rand::thread_rng();
-    let mut sampled_pixels: Vec<(usize, usize)> = vec![];
+    let mut sampled_pixels: HashSet<(usize, usize)> = HashSet::new();
     let mut centroids = vec![];
     let max_samples = 20;
 
@@ -64,10 +66,18 @@ fn initialize_centroids(image: ImageData, k: i32) -> Vec<RGBAValue> {
         let mut rand_x = rng.gen_range(0..image.width);
         let mut rand_y = rng.gen_range(0..image.height);
         let mut sample_attempts = 1;
+        let mut pixel = image.get_pixel(rand_x, rand_y);
 
         loop {
+            if image.get_pixel(rand_x, rand_y).a == 0 {
+                rand_x = rng.gen_range(0..image.width);
+                rand_y = rng.gen_range(0..image.height);
+                pixel = image.get_pixel(rand_x, rand_y);
+                sample_attempts += 1;
+                continue;
+            }
             if !sampled_pixels.contains(&(rand_x, rand_y)) {
-                sampled_pixels.push((rand_x, rand_y));
+                sampled_pixels.insert((rand_x, rand_y));
                 break;
             }
             if sample_attempts >= max_samples {
@@ -75,10 +85,9 @@ fn initialize_centroids(image: ImageData, k: i32) -> Vec<RGBAValue> {
             }
             rand_x = rng.gen_range(0..image.width);
             rand_y = rng.gen_range(0..image.height);
+            pixel = image.get_pixel(rand_x, rand_y);
             sample_attempts += 1;
         }
-
-        let pixel = image.get_pixel(rand_x, rand_y);
 
         let centroid = RGBAValue {
             r: pixel.r,
