@@ -50,13 +50,15 @@ pub fn collect_image_data() {
                 };
                 image_data.pixels.push(new_pixel);
             }
-            let centroids = initialize_centroids(image_data, 30);
+            let centroids = initialize_centroids(&image_data, 30);
+            let assigned = centroid_distance_assigning(centroids, &image_data);
+            println!("Assigned pixels: {:?}", assigned);
         }
         Err(e) => {println!("Error: Image not ok: {:?}", e)},
     }
 }
 
-fn initialize_centroids(image: ImageData, k: i32) -> Vec<RGBAValue> {
+fn initialize_centroids(image: &ImageData, k: i32) -> Vec<RGBAValue> {
     let mut rng = rand::thread_rng();
     let mut sampled_pixels: HashSet<(usize, usize)> = HashSet::new();
     let mut centroids = vec![];
@@ -101,4 +103,32 @@ fn initialize_centroids(image: ImageData, k: i32) -> Vec<RGBAValue> {
 
 
     centroids
+}
+
+fn centroid_distance_assigning(centroids: Vec<RGBAValue>, image: &ImageData) -> Vec<isize> {
+    let mut centroid_assignments = vec![];
+
+    for pixel in &image.pixels {
+        if pixel.a == 0 {
+            centroid_assignments.push(-1);
+            continue;
+        }
+
+        let mut nearest: (isize, i32) = (-1, -1);
+
+        for (i, centroid) in centroids.iter().enumerate() {
+            let dr = pixel.r as i32 - centroid.r as i32;
+            let dg = pixel.g as i32 - centroid.g as i32;
+            let db = pixel.b as i32 - centroid.b as i32;
+            let distance: i32 = dr * dr + dg * dg + db * db;
+
+            if nearest.1 == -1 || distance < nearest.1 {
+                nearest = (i as isize, distance);
+            }
+        }
+
+        centroid_assignments.push(nearest.0);
+    }
+
+    centroid_assignments
 }
