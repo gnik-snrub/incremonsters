@@ -53,8 +53,9 @@ pub fn collect_image_data() {
 
             let mut centroids = initialize_centroids(&image_data, 3);
             let mut assignments = centroid_distance_assigning(&centroids, &image_data);
+            let mut reinit_count: usize = 0;
             for _ in 0..25 {
-                let new_centroids = recompute_centroids(&centroids, &image_data, &assignments);
+                let new_centroids = recompute_centroids(&centroids, &image_data, &assignments, reinit_count);
                 let change = sum_centroid_distances(&centroids, &new_centroids);
                 centroids = new_centroids;
                 if change.abs() > 100 {
@@ -83,14 +84,14 @@ fn sum_centroid_distances(old: &Vec<RGBAValue>, new: &Vec<RGBAValue>) -> i32 {
 fn initialize_centroids(image: &ImageData, k: i32) -> Vec<RGBAValue> {
     let mut centroids = vec![];
     for _ in 0..k {
-        centroids.push(get_init_pixel(image));
+        centroids.push(get_init_pixel(image, centroids.len()));
     }
 
     centroids
 }
 
-fn get_init_pixel(image: &ImageData) -> RGBAValue {
-    let mut rng = rand::rngs::StdRng::seed_from_u64(31);
+fn get_init_pixel(image: &ImageData, init_count: usize) -> RGBAValue {
+    let mut rng = rand::rngs::StdRng::seed_from_u64(31 + init_count as u64);
 
     let mut sampled_pixels: HashSet<(usize, usize)> = HashSet::new();
     let max_samples = 20;
@@ -167,7 +168,7 @@ struct RecomputeData {
     count: i32,
 }
 
-fn recompute_centroids(centroids: &Vec<RGBAValue>, image: &ImageData, assignments: &Vec<isize>) -> Vec<RGBAValue> {
+fn recompute_centroids(centroids: &Vec<RGBAValue>, image: &ImageData, assignments: &Vec<isize>, mut reinit_count: usize) -> Vec<RGBAValue> {
     let default_recompute_data = RecomputeData { r: 0, g: 0, b: 0, count: 0 };
     let mut recompute_data: Vec<RecomputeData> = vec![default_recompute_data.clone(); centroids.len()];
 
@@ -191,7 +192,8 @@ fn recompute_centroids(centroids: &Vec<RGBAValue>, image: &ImageData, assignment
             a: 255,
             }
         } else {
-            get_init_pixel(image)
+            reinit_count += 1;
+            get_init_pixel(image, reinit_count)
         };
         recomputed_centroids.push(updated_centroid);
     }
