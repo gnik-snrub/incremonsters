@@ -51,14 +51,15 @@ pub fn collect_image_data() {
                 image_data.pixels.push(new_pixel);
             }
 
-            let mut centroids = initialize_centroids(&image_data, 3);
+            let mut centroids = initialize_centroids(&image_data, 12);
             let mut assignments = centroid_distance_assigning(&centroids, &image_data);
             let mut reinit_count: usize = 0;
-            for _ in 0..25 {
+            for i in 0..50 {
                 let new_centroids = recompute_centroids(&centroids, &image_data, &assignments, reinit_count);
+                reinit_count += 1;
                 let change = sum_centroid_distances(&centroids, &new_centroids);
                 centroids = new_centroids;
-                if change.abs() > 100 {
+                if change.abs() <= 100 {
                     break;
                 }
                 assignments = centroid_distance_assigning(&centroids, &image_data);
@@ -168,7 +169,7 @@ struct RecomputeData {
     count: i32,
 }
 
-fn recompute_centroids(centroids: &Vec<RGBAValue>, image: &ImageData, assignments: &Vec<isize>, mut reinit_count: usize) -> Vec<RGBAValue> {
+fn recompute_centroids(centroids: &Vec<RGBAValue>, image: &ImageData, assignments: &Vec<isize>, reinit_count: usize) -> Vec<RGBAValue> {
     let default_recompute_data = RecomputeData { r: 0, g: 0, b: 0, count: 0 };
     let mut recompute_data: Vec<RecomputeData> = vec![default_recompute_data.clone(); centroids.len()];
 
@@ -184,16 +185,16 @@ fn recompute_centroids(centroids: &Vec<RGBAValue>, image: &ImageData, assignment
 
     let mut recomputed_centroids = vec![];
     for d in recompute_data {
-        let updated_centroid = if !d.count == 0 {
-            RGBAValue {
+        if d.count == 0 {
+            recomputed_centroids.push(get_init_pixel(image, reinit_count));
+            continue;
+        }
+
+        let updated_centroid = RGBAValue {
             r: (d.r / if d.count == 0 { 1 } else { d.count }) as u8,
             g: (d.g / if d.count == 0 { 1 } else { d.count }) as u8,
             b: (d.b / if d.count == 0 { 1 } else { d.count }) as u8,
             a: 255,
-            }
-        } else {
-            reinit_count += 1;
-            get_init_pixel(image, reinit_count)
         };
         recomputed_centroids.push(updated_centroid);
     }
