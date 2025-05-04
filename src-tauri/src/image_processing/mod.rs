@@ -1,9 +1,10 @@
 use std::collections::HashSet;
 
+use image::{DynamicImage, GenericImageView, Rgba, RgbaImage};
 use rand::{Rng, SeedableRng};
 
 
-#[derive(Debug)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 struct RGBAValue {
     r: u8,
     g: u8,
@@ -26,48 +27,55 @@ impl ImageData {
 }
 
 #[tauri::command]
-pub fn collect_image_data() {
-    let image_file = image::open("../public/images/test.png");
-    match image_file {
-        Ok(img) => {
-            let buffer = img.to_rgba8();
-            let raw = buffer.as_raw();
-            let height = buffer.height();
-            let width = buffer.width();
+pub fn generate_fusion_sprite() {
+    let palette_monster = image::open("../public/images/monsters/Celestial/Divinarch.png");
+    let sprite_monster = image::open("../public/images/monsters/Celestial/Aurenguard.png");
+    match (palette_monster, sprite_monster) {
+        (Ok(colors), Ok(shape)) => {
+            let (palette, _) = collect_palette_and_assignments(&colors);
+            let (_, sprite) = collect_palette_and_assignments(&shape);
 
-            let mut image_data = ImageData {
-                height: height as usize,
-                width: width as usize,
-                pixels: vec![]
-            };
-
-            for chunk in raw.chunks(4) {
-                let new_pixel = RGBAValue {
-                    r: chunk[0],
-                    g: chunk[1],
-                    b: chunk[2],
-                    a: chunk[3],
-                };
-                image_data.pixels.push(new_pixel);
-            }
-
-            let mut centroids = initialize_centroids(&image_data, 12);
-            let mut assignments = centroid_distance_assigning(&centroids, &image_data);
-            let mut reinit_count: usize = 0;
-            for i in 0..50 {
-                let new_centroids = recompute_centroids(&centroids, &image_data, &assignments, reinit_count);
-                reinit_count += 1;
-                let change = sum_centroid_distances(&centroids, &new_centroids);
-                centroids = new_centroids;
-                if change.abs() <= 100 {
-                    break;
-                }
-                assignments = centroid_distance_assigning(&centroids, &image_data);
-            }
-            println!("Centroids: {:?}", centroids);
+            create_sprite(palette, sprite, &shape);
         }
-        Err(e) => {println!("Error: Image not ok: {:?}", e)},
+        (_, Err(e)) | (Err(e), _) => {println!("Error: Image not ok: {:?}", e)},
     }
+}
+
+fn collect_palette_and_assignments(img: &DynamicImage) -> (Vec<RGBAValue>, Vec<isize>) {
+    let buffer = img.to_rgba8();
+    let raw = buffer.as_raw();
+    let height = buffer.height();
+    let width = buffer.width();
+
+    let mut image_data = ImageData {
+        height: height as usize,
+        width: width as usize,
+        pixels: vec![]
+    };
+
+    for chunk in raw.chunks(4) {
+        let new_pixel = RGBAValue {
+            r: chunk[0],
+            g: chunk[1],
+            b: chunk[2],
+            a: chunk[3],
+        };
+        image_data.pixels.push(new_pixel);
+    }
+
+    let mut centroids = initialize_centroids(&image_data, 25);
+    let mut assignments = centroid_distance_assigning(&centroids, &image_data);
+    let mut reinit_count: usize = 0;
+    for i in 0..10 {
+        let new_centroids = recompute_centroids(&centroids, &image_data, &assignments, reinit_count);
+        let change = sum_centroid_distances(&centroids, &new_centroids);
+        centroids = new_centroids;
+        if change.abs() <= 50 {
+            break;
+        }
+        assignments = centroid_distance_assigning(&centroids, &image_data);
+    }
+    (centroids, assignments)
 }
 
 fn sum_centroid_distances(old: &Vec<RGBAValue>, new: &Vec<RGBAValue>) -> i32 {
@@ -169,7 +177,7 @@ struct RecomputeData {
     count: i32,
 }
 
-fn recompute_centroids(centroids: &Vec<RGBAValue>, image: &ImageData, assignments: &Vec<isize>, reinit_count: usize) -> Vec<RGBAValue> {
+fn recompute_centroids(centroids: &Vec<RGBAValue>, image: &ImageData, assignments: &Vec<isize>, mut reinit_count: usize) -> Vec<RGBAValue> {
     let default_recompute_data = RecomputeData { r: 0, g: 0, b: 0, count: 0 };
     let mut recompute_data: Vec<RecomputeData> = vec![default_recompute_data.clone(); centroids.len()];
 
@@ -183,10 +191,13 @@ fn recompute_centroids(centroids: &Vec<RGBAValue>, image: &ImageData, assignment
         recompute_data[*pixel as usize].count += 1;
     }
 
+    let mut unique_centroids: HashSet<RGBAValue> = HashSet::new();
+
     let mut recomputed_centroids = vec![];
     for d in recompute_data {
         if d.count == 0 {
             recomputed_centroids.push(get_init_pixel(image, reinit_count));
+            reinit_count += 1;
             continue;
         }
 
@@ -196,9 +207,39 @@ fn recompute_centroids(centroids: &Vec<RGBAValue>, image: &ImageData, assignment
             b: (d.b / if d.count == 0 { 1 } else { d.count }) as u8,
             a: 255,
         };
+
+        if unique_centroids.contains(&updated_centroid) {
+            recomputed_centroids.push(get_init_pixel(image, reinit_count));
+            reinit_count += 1;
+            continue;
+        }
+        unique_centroids.insert(updated_centroid.clone());
         recomputed_centroids.push(updated_centroid);
     }
 
     recomputed_centroids
 }
 
+fn create_sprite(palette: Vec<RGBAValue>, sprite: Vec<isize>, original_image: &DynamicImage) {
+    let w = original_image.width() as u32;
+    let h = original_image.height() as u32;
+    let mut img = RgbaImage::new(w, h);
+
+    for (i, c) in sprite.iter().enumerate() {
+        let x = (i as u32) % w;
+        let y = (i as u32) / w;
+
+        if *c == -1 {
+            img.put_pixel(x, y, Rgba([0, 0, 0, 0]));
+            continue;
+        }
+
+        let assigned_color = &palette[*c as usize];
+        let alpha_value = original_image.get_pixel(x, y)[3];
+        img.put_pixel(x, y, Rgba([assigned_color.r, assigned_color.g, assigned_color.b, alpha_value]));
+    }
+
+    let path_name = format!("../public/images/created_sprite.png");
+
+    img.save(path_name).expect("Failed to save image");
+}
