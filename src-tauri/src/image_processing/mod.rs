@@ -3,6 +3,8 @@ use std::collections::HashSet;
 use image::{DynamicImage, GenericImageView, Rgba, RgbaImage};
 use rand::{Rng, SeedableRng};
 
+use crate::models::Monster;
+
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 struct RGBAValue {
@@ -27,15 +29,15 @@ impl ImageData {
 }
 
 #[tauri::command]
-pub fn generate_fusion_sprite() {
-    let palette_monster = image::open("../public/images/monsters/Celestial/Divinarch.png");
-    let sprite_monster = image::open("../public/images/monsters/Celestial/Aurenguard.png");
+pub fn generate_fusion_sprite(import_palette: Monster, import_sprite: Monster) {
+    let palette_monster = image::open(format!("../public/images/monsters/{}/{}.png", import_palette.creature_family, import_palette.creature_type));
+    let sprite_monster = image::open(format!("../public/images/monsters/{}/{}.png", import_sprite.creature_family, import_sprite.creature_type));
     match (palette_monster, sprite_monster) {
         (Ok(colors), Ok(shape)) => {
             let (palette, _) = collect_palette_and_assignments(&colors);
             let (_, sprite) = collect_palette_and_assignments(&shape);
 
-            create_sprite(palette, sprite, &shape);
+            create_sprite(palette, sprite, &shape, format!("{}-{}", import_palette.creature_type, import_sprite.creature_type).as_str());
         }
         (_, Err(e)) | (Err(e), _) => {println!("Error: Image not ok: {:?}", e)},
     }
@@ -220,7 +222,7 @@ fn recompute_centroids(centroids: &Vec<RGBAValue>, image: &ImageData, assignment
     recomputed_centroids
 }
 
-fn create_sprite(palette: Vec<RGBAValue>, sprite: Vec<isize>, original_image: &DynamicImage) {
+fn create_sprite(palette: Vec<RGBAValue>, sprite: Vec<isize>, original_image: &DynamicImage, file_name: &str) {
     let w = original_image.width() as u32;
     let h = original_image.height() as u32;
     let mut img = RgbaImage::new(w, h);
@@ -239,7 +241,7 @@ fn create_sprite(palette: Vec<RGBAValue>, sprite: Vec<isize>, original_image: &D
         img.put_pixel(x, y, Rgba([assigned_color.r, assigned_color.g, assigned_color.b, alpha_value]));
     }
 
-    let path_name = format!("../public/images/created_sprite.png");
+    let path_name = format!("../public/images/{}.png", file_name);
 
     img.save(path_name).expect("Failed to save image");
 }
