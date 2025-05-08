@@ -11,8 +11,8 @@ mod math;
 use math::battle::battle;
 use math::rewards::{win_battle_rewards, GrowthBoosts};
 mod traits;
-mod image_processing;
-use image_processing::collect_image_data;
+pub mod image_processing;
+use image_processing::generate_fusion_sprite;
 
 #[tauri::command]
 fn create_monster(lvl: i32) -> Monster {
@@ -36,7 +36,7 @@ pub fn run() {
             win_battle_rewards,
             save,
             load,
-            collect_image_data,
+            generate_fusion_sprite,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
