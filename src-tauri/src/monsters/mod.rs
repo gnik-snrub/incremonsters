@@ -1,3 +1,4 @@
+use abyssborn::{AbyssbornType, ABYSSMAW_GROWTH_RATE, GLOWDRIFTER_GROWTH_RATE, TENTACLAW_GROWTH_RATE, VEILSHROUD_GROWTH_RATE};
 use celestials::{CelestialType, AETHERWING_GROWTH_RATE, AURENGUARD_GROWTH_RATE, DIVINARCH_GROWTH_RATE, RADIANTHEART_GROWTH_RATE};
 use stonekin::{ StonekinType, PEBBLEBOUND_GROWTH_RATE, SLATEBLADE_GROWTH_RATE, BOLDERFIST_GROWTH_RATE, MOUNTAINHEART_GROWTH_RATE};
 
@@ -5,11 +6,13 @@ use crate::{math::rewards::{GrowthBoosts, GrowthModifier}, models::Monster};
 
 pub mod stonekin;
 pub mod celestials;
+pub mod abyssborn;
 
 #[derive(Clone)]
 pub enum MonsterFamily {
     Stonekin(Option<StonekinType>),
-    Celestial(Option<CelestialType>)
+    Celestial(Option<CelestialType>),
+    Abyssborn(Option<AbyssbornType>)
 }
 
 pub trait MonsterType {
@@ -67,6 +70,12 @@ fn find_growth_rate(monster: Monster) -> GrowthRates {
         "Aetherwing" => AETHERWING_GROWTH_RATE,
         "Aurenguard" => AURENGUARD_GROWTH_RATE,
         "Divinarch" => DIVINARCH_GROWTH_RATE,
+
+        "Glowdrifter" => GLOWDRIFTER_GROWTH_RATE,
+        "Tentaclaw" => TENTACLAW_GROWTH_RATE,
+        "Abyssmaw" => ABYSSMAW_GROWTH_RATE,
+        "Veilshroud" => VEILSHROUD_GROWTH_RATE,
+
         _ => MISSING_GROWTH_RATE,
     };
     rate
@@ -78,5 +87,7 @@ pub fn generate_monster(family: MonsterFamily) -> Monster {
         MonsterFamily::Stonekin(Some(monster)) => monster.generate(),
         MonsterFamily::Celestial(None) => CelestialType::random().generate(),
         MonsterFamily::Celestial(Some(monster)) => monster.generate(),
+        MonsterFamily::Abyssborn(None) => AbyssbornType::random().generate(),
+        MonsterFamily::Abyssborn(Some(monster)) => monster.generate(),
     }
 }
